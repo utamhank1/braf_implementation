@@ -2,6 +2,8 @@ import argparse
 import os
 import sys
 import pandas as pd
+import scipy
+from scipy import stats
 import numpy as np
 import data_explorer
 import data_preprocessor
@@ -51,6 +53,8 @@ def main(file):
     # Save summary statistics for each feature.
     feature_summary_statistics = data_explorer.data_summary_statistics(raw_data).print_summary()
 
+    # Preprocess the data.
+    print(data_preprocessor.preprocessed_data(raw_data, imputation_method='mean', stdev_to_keep=2.75).impute())
 
 if __name__ == "__main__":
     arguments = parse_arguments()
