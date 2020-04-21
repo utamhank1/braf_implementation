@@ -41,13 +41,15 @@ def main(file):
 
     # Data Exploration
     # Draw histograms of distributions of features for people with and without diabetes.
-    data_explorer.data_summary_statistics(raw_data).draw_distributions()
-    plt.show()
+    # data_explorer.data_summary_statistics(raw_data).draw_distributions()
+    # plt.show()
 
     # Draw correlation heatmap for all features.
-    plt.figure(figsize=(10, 10))
-    plt.show(data_explorer.data_summary_statistics(raw_data).draw_correlations())
+    # plt.figure(figsize=(10, 10))
+    # plt.show(data_explorer.data_summary_statistics(raw_data).draw_correlations())
 
+    # Save summary statistics for each feature.
+    feature_summary_statistics = data_explorer.data_summary_statistics(raw_data).print_summary()
 
 
 if __name__ == "__main__":

@@ -16,3 +16,8 @@ class data_summary_statistics:
         correlations = abs(self.get_raw_data().corr())
         sns.set(font_scale=.5)
         return sns.heatmap(correlations, annot=True, robust=True, linecolor='white', cbar=False, cmap="YlGnBu")
+
+    def print_summary(self):
+        return self.get_raw_data().describe()
+
+
