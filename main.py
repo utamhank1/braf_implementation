@@ -41,17 +41,13 @@ def main(file):
 
     # Data Exploration
     # Draw histograms of distributions of features for people with and without diabetes.
-    # data_explorer.data_summary_statistics(raw_data).draw_distributions()
-    # plt.show()
+    data_explorer.data_summary_statistics(raw_data).draw_distributions()
+    plt.show()
 
-    # Draw correlational heatmap for all features.
+    # Draw correlation heatmap for all features.
     plt.figure(figsize=(10, 10))
     plt.show(data_explorer.data_summary_statistics(raw_data).draw_correlations())
 
-    # Data preprocessing, three processed data objects created to test each imputation method.
-    # processed_data_median_impute = data_preprocessor.preprocessed_data(raw_data, imputation_method='median')
-    # processed_data_mean_impute = data_preprocessor.preprocessed_data(raw_data, imputation_method='mean')
-    # processed_data_mean_sd_random_impute = data_preprocessor.preprocessed_data(raw_data, imputation_method='mean')
 
 
 if __name__ == "__main__":
