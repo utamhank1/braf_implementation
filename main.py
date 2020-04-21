@@ -3,6 +3,10 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+import data_explorer
+import data_preprocessor
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def parse_arguments():
@@ -33,7 +37,19 @@ def main(file):
 
     # Data Importation.
     raw_data = pd.DataFrame(pd.read_csv(file))
-    print(raw_data.head())
+    # print(raw_data.head())
+
+    # Data Exploration
+    # Draw histograms of distributions of features for people with and without diabetes.
+    # data_explorer.data_summary_statistics(raw_data).draw_distributions()
+    # plt.show()
+
+    # Draw correlation heatmap for all features.
+    # plt.figure(figsize=(10, 10))
+    # plt.show(data_explorer.data_summary_statistics(raw_data).draw_correlations())
+
+    # Save summary statistics for each feature.
+    feature_summary_statistics = data_explorer.data_summary_statistics(raw_data).print_summary()
 
 
 if __name__ == "__main__":

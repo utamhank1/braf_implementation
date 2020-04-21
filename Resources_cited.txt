@@ -1,0 +1,2 @@
+1. https://likegeeks.com/seaborn-heatmap-tutorial/
+2. https://datascience.stackexchange.com/questions/17540/make-seaborn-heatmap-bigger
