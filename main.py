@@ -1,6 +1,8 @@
 import argparse
 import os
 import sys
+import pandas as pd
+import numpy as np
 
 
 def parse_arguments():
@@ -28,6 +30,10 @@ def parse_arguments():
 
 def main(file):
     print(f"Hello, World the file supplied is {file}")
+
+    # Data Importation.
+    raw_data = pd.DataFrame(pd.read_csv(file))
+    print(raw_data.head())
 
 
 if __name__ == "__main__":
