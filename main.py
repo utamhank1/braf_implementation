@@ -10,7 +10,7 @@ import data_preprocessor
 import matplotlib.pyplot as plt
 import seaborn as sns
 import collections
-from braf_helpers import get_neighbors
+from braf_helpers import get_neighbors, calc_unique_neighbors
 from scipy.spatial import KDTree
 import math
 
@@ -116,24 +116,11 @@ def main(file):
     T_min = K_folds[0][0].loc[K_folds[0][0]['Outcome'] == 1].reset_index(drop=True)
 
     # Step b, isolate "difficult areas" affecting the minority instances.
-
-    # For each record in T_min, find the k-nearest neighbors
-    T_min_nearest_neighbors = []
+    # For each record in T_min, create the find the k-nearest neighbors, save these nearest neighbors in T_c.
     full_dataset = K_folds[0][0].values
     k = int(math.sqrt(len(full_dataset)))
-    for i in range(0, len(T_min)):
-        T_min_nearest_neighbors.append(get_neighbors(full_dataset, T_min.iloc[i].values, k))
-    T_min_nearest_neighbors_flat = [item for sublist in T_min_nearest_neighbors for item in sublist]
-    print(len(T_min_nearest_neighbors_flat))
-    print(len(np.unique(T_min_nearest_neighbors_flat, axis=0)))
-    #
-    # T_min_nearest_neighbors = []
-    # full_dataset = K_folds[0][0].values
-    # row0 = K_folds[0][0].iloc[0].values
-    # neighbors = get_neighbors(full_dataset, row0, 4)
-    # for neighbor in neighbors:
-    #     print(neighbor)
-    # # distances = (K_folds[0][0] - np.array(row0)).pow(2).sum(1).pow(0.5)
+    T_c = calc_unique_neighbors(full_dataset, k, T_min)
+    print(len(T_c))
 
 
 if __name__ == "__main__":

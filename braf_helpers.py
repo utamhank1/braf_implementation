@@ -2,6 +2,7 @@
 """ This module contains helper functions to help execute the braf algorithm in main().
 """
 import math
+import numpy as np
 
 
 def euclidean_distance(row1, row2):
@@ -34,3 +35,12 @@ def get_neighbors(dataset, row, k_neighbors):
     for i in range(k_neighbors):
         neighbors.append(distances[i][0])
     return neighbors
+
+
+def calc_unique_neighbors(full_dataset, k, T_min):
+    T_min_nearest_neighbors = []
+
+    for i in range(0, len(T_min)):
+        T_min_nearest_neighbors.append(get_neighbors(full_dataset, T_min.iloc[i].values, k))
+    T_min_nearest_neighbors_flat = [item for sublist in T_min_nearest_neighbors for item in sublist]
+    return np.unique(T_min_nearest_neighbors_flat, axis=0)
