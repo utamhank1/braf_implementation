@@ -1,3 +1,4 @@
 1. https://likegeeks.com/seaborn-heatmap-tutorial/
 2. https://datascience.stackexchange.com/questions/17540/make-seaborn-heatmap-bigger
 3. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.describe.html
+4. https://towardsdatascience.com/ways-to-detect-and-remove-the-outliers-404d16608dba

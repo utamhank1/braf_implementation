@@ -64,8 +64,11 @@ def main(file):
     ############################################ Data Pre-processing. ##################################################
     ####################################################################################################################
 
-    std_dev_to_keep = [2.5, 2.75, 3.0]
-    imputation_methods = ['random', 'mean', 'median']
+    # TODO: Generate all of the processed_data objects.
+    # std_dev_to_keep = [2.5, 2.75, 3.0]
+    # imputation_methods = ['random', 'mean', 'median']
+    std_dev_to_keep = [2.75]
+    imputation_methods = ['random']
     processed_data_objects = collections.defaultdict(list)
 
     # # Create nine preprocessed and imputed data objects with varying std. deviations kept and imputation methods.
@@ -75,6 +78,25 @@ def main(file):
                                     str(imputation_method))].append(data_preprocessor.
                                                                     preprocessed_data(raw_data, stdev_to_keep=std_dev).
                                                                     impute(imputation_method=imputation_method))
+
+    ####################################################################################################################
+    ############################################ Data Splitting. #######################################################
+    ####################################################################################################################
+
+    # TODO: Iterate through all of the objects in processed_data objects.
+    data = processed_data_objects['data_std_dev_2_75_impute_random'][0]
+
+    # 80/20 test split for training and holdout data.
+    holdout_data = data[0:int(.2*len(data))]
+    training_data = data[int(.2*len(data)):len(data)]
+
+    # TODO: Add K as an input to argparser.
+    K = 10
+
+    shuffled_data = training_data.sample(frac=1)
+
+    # Create K random divisions of the test data and store them in a pandas dataframe.
+    K_folds = pd.DataFrame(np.array_split(shuffled_data, K))
 
 
 if __name__ == "__main__":
