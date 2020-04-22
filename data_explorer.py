@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+""" This module contains basic visualization tools for visulaizing data. (Module is deprecated and integrated into
+data_preprocessor in later version).
+"""
+
 import seaborn as sns
 
 
