@@ -2,3 +2,6 @@
 2. https://datascience.stackexchange.com/questions/17540/make-seaborn-heatmap-bigger
 3. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.describe.html
 4. https://towardsdatascience.com/ways-to-detect-and-remove-the-outliers-404d16608dba
+5. https://stackoverflow.com/questions/38468549/how-to-convert-pandas-series-to-tuple-of-index-and-value
+6. https://machinelearningmastery.com/tutorial-to-implement-k-nearest-neighbors-in-python-from-scratch/
+7.

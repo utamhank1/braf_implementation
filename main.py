@@ -10,7 +10,8 @@ import data_preprocessor
 import matplotlib.pyplot as plt
 import seaborn as sns
 import collections
-
+from braf_helpers import euclidean_distance, get_neighbors
+from scipy.spatial import KDTree
 
 def parse_arguments():
     """
@@ -87,8 +88,8 @@ def main(file):
     data = processed_data_objects['data_std_dev_2_75_impute_random'][0]
 
     # 80/20 test split for training and holdout data.
-    holdout_data = data[0:int(.2*len(data))]
-    training_data = data[int(.2*len(data)):len(data)]
+    holdout_data = data[0:int(.2 * len(data))]
+    training_data = data[int(.2 * len(data)):len(data)]
 
     # TODO: Add K as an input to argparser.
     K = 10
@@ -97,6 +98,31 @@ def main(file):
 
     # Create K random divisions of the test data and store them in a pandas dataframe.
     K_folds = pd.DataFrame(np.array_split(shuffled_data, K))
+
+    for i in range(0, len(K_folds)):
+        K_folds[0][i] = K_folds[0][i].reset_index(drop=True)
+    ####################################################################################################################
+    ############################################ BRAF Algorithm. #######################################################
+    ####################################################################################################################
+
+    # TODO: Add these parameters as inputs to argparser.
+    p = .05
+    s = 100
+
+    # Step a, split into T_maj and T_min majority/minority classes.
+    T_maj = K_folds[0][0].loc[K_folds[0][0]['Outcome'] == 0]
+    T_min = K_folds[0][0].loc[K_folds[0][0]['Outcome'] == 1]
+
+    print(K_folds[0][0].iloc[0])
+
+    # Step b, isolate "difficult areas" affecting the minority instances.
+    full_dataset = K_folds[0][0].values
+    row0 = K_folds[0][0].iloc[0].values
+    print(row0)
+    neighbors = get_neighbors(full_dataset, row0, 4)
+    for neighbor in neighbors:
+        print(neighbor)
+    # distances = (K_folds[0][0] - np.array(row0)).pow(2).sum(1).pow(0.5)
 
 
 if __name__ == "__main__":
