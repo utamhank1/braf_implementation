@@ -119,8 +119,10 @@ def main(file):
     # For each record in T_min, create the find the k-nearest neighbors, save these nearest neighbors in T_c.
     full_dataset = K_folds[0][0].values
     k = int(math.sqrt(len(full_dataset)))
-    T_c = calc_unique_neighbors(full_dataset, k, T_min)
-    print(len(T_c))
+    T_c = pd.DataFrame(calc_unique_neighbors(full_dataset, k, T_min), columns=raw_data.columns)
+
+    # Step c, build the random forest RF1 from the full dataset.
+    RF1 = build_random_forest
 
 
 if __name__ == "__main__":
