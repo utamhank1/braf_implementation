@@ -37,24 +37,33 @@ def parse_arguments():
 def main(file):
     print(f"Hello, World the file supplied is {file}")
 
-    # Data Importation.
+    ####################################################################################################################
+    ########################################### Data Importation. ######################################################
+    ####################################################################################################################
+
     raw_data = pd.DataFrame(pd.read_csv(file))
     # print(raw_data.head())
 
-    # Data Exploration
-    # Draw histograms of distributions of features for people with and without diabetes.
-    # data_explorer.data_summary_statistics(raw_data).draw_distributions()
-    # plt.show()
+    ####################################################################################################################
+    ############################################ Data Exploration ######################################################
+    ####################################################################################################################
 
     # Draw correlation heatmap for all features.
-    # plt.figure(figsize=(10, 10))
-    # plt.show(data_explorer.data_summary_statistics(raw_data).draw_correlations())
+    plt.figure(figsize=(10, 10))
+    plt.show(data_preprocessor.data_explorer(raw_data).draw_correlations())
+
+    # Draw histograms of distributions of features for people with and without diabetes.
+    data_preprocessor.data_explorer(raw_data).draw_distributions()
+    plt.show()
 
     # Save summary statistics for each feature.
-    feature_summary_statistics = data_explorer.data_summary_statistics(raw_data).print_summary()
+    feature_summary_statistics = data_preprocessor.data_explorer(raw_data).print_summary()
 
-    # Preprocess the data.
-    print(data_preprocessor.preprocessed_data(raw_data, imputation_method='random', stdev_to_keep=2.75).impute())
+    ####################################################################################################################
+    ############################################ Data Pre-processing####################################################
+    ####################################################################################################################
+    print(data_preprocessor.preprocessed_data(raw_data, stdev_to_keep=2.75).impute(imputation_method='random'))
+
 
 if __name__ == "__main__":
     arguments = parse_arguments()
