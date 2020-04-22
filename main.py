@@ -54,7 +54,7 @@ def main(file):
     feature_summary_statistics = data_explorer.data_summary_statistics(raw_data).print_summary()
 
     # Preprocess the data.
-    print(data_preprocessor.preprocessed_data(raw_data, imputation_method='mean', stdev_to_keep=2.75).impute())
+    print(data_preprocessor.preprocessed_data(raw_data, imputation_method='random', stdev_to_keep=2.75).impute())
 
 if __name__ == "__main__":
     arguments = parse_arguments()

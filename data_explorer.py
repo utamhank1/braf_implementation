@@ -1,7 +1,7 @@
 import seaborn as sns
 
 
-class data_summary_statistics:
+class data_summary_statistics(object):
 
     def __init__(self, raw_data):
         self.raw_data = raw_data
