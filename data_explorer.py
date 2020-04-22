@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
+""" This module contains basic visualization tools for visulaizing data. (Module is deprecated and integrated into
+data_preprocessor in later version).
+"""
+
 import seaborn as sns
 
 
-class data_summary_statistics:
+class data_summary_statistics(object):
 
     def __init__(self, raw_data):
         self.raw_data = raw_data

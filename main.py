@@ -2,11 +2,14 @@ import argparse
 import os
 import sys
 import pandas as pd
+import scipy
+from scipy import stats
 import numpy as np
 import data_explorer
 import data_preprocessor
 import matplotlib.pyplot as plt
 import seaborn as sns
+import collections
 
 
 def parse_arguments():
@@ -35,21 +38,43 @@ def parse_arguments():
 def main(file):
     print(f"Hello, World the file supplied is {file}")
 
-    # Data Importation.
+    ####################################################################################################################
+    ########################################### Data Importation. ######################################################
+    ####################################################################################################################
+
     raw_data = pd.DataFrame(pd.read_csv(file))
     # print(raw_data.head())
 
-    # Data Exploration
-    # Draw histograms of distributions of features for people with and without diabetes.
-    # data_explorer.data_summary_statistics(raw_data).draw_distributions()
-    # plt.show()
+    ####################################################################################################################
+    ############################################ Data Exploration. #####################################################
+    ####################################################################################################################
 
-    # Draw correlation heatmap for all features.
+    # # Draw correlation heatmap for all features.
     # plt.figure(figsize=(10, 10))
-    # plt.show(data_explorer.data_summary_statistics(raw_data).draw_correlations())
+    # plt.show(data_preprocessor.data_explorer(raw_data).draw_correlations())
+    #
+    # # Draw histograms of distributions of features for people with and without diabetes.
+    # data_preprocessor.data_explorer(raw_data).draw_distributions()
+    # plt.show()
+    #
+    # # Save summary statistics for each feature.
+    # feature_summary_statistics = data_preprocessor.data_explorer(raw_data).print_summary()
 
-    # Save summary statistics for each feature.
-    feature_summary_statistics = data_explorer.data_summary_statistics(raw_data).print_summary()
+    ####################################################################################################################
+    ############################################ Data Pre-processing. ##################################################
+    ####################################################################################################################
+
+    std_dev_to_keep = [2.5, 2.75, 3.0]
+    imputation_methods = ['random', 'mean', 'median']
+    processed_data_objects = collections.defaultdict(list)
+
+    # # Create nine preprocessed and imputed data objects with varying std. deviations kept and imputation methods.
+    for imputation_method in imputation_methods:
+        for std_dev in std_dev_to_keep:
+            processed_data_objects[("data_std_dev_" + str(std_dev).replace('.', '_') + "_impute_" +
+                                    str(imputation_method))].append(data_preprocessor.
+                                                                    preprocessed_data(raw_data, stdev_to_keep=std_dev).
+                                                                    impute(imputation_method=imputation_method))
 
 
 if __name__ == "__main__":
