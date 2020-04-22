@@ -46,11 +46,11 @@ class preprocessed_data(object):
 
         if imputation_method == 'mean':
             df_out[columns_2_thru_8] = df_out[columns_2_thru_8].replace(0, df_out.mean())
-            return df_out
+            return df_out.reset_index(drop=True)
 
         if imputation_method == 'median':
             df_out[columns_2_thru_8] = df_out[columns_2_thru_8].replace(0, df_out.median())
-            return df_out
+            return df_out.reset_index(drop=True)
 
         if imputation_method == 'random':
 
