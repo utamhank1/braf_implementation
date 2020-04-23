@@ -47,6 +47,26 @@ def entropy(rows):
     return ent
 
 
+def divide_set(rows, column, value):
+    """
+    Splits the dataset based on the value at a specified column index.
+    :param rows: list of lists representing the dataset.
+    :param column: int column index used to base where to split the data.
+    :param value: float The value that is used in the split.
+    :return: set, set based on the two pieces of the split dataset.
+    """
+    split_function = None
+    if isinstance(value, int) or isinstance(value, float):
+        split_function = lambda row: row[column] >= value
+    else:
+        split_function = lambda row: row[column] == value
+
+    set1 = [row for row in rows if split_function(row)]
+    set2 = [row for row in rows if not split_function(row)]
+
+    return set1, set2
+
+
 class DecisionTreeClassifier(object):
     class DecisionNode(object):
         def __init__(self, col=-1, value=None, results=None, tb=None, fb=None):
