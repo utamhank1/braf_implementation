@@ -58,7 +58,6 @@ def calculate_model_metrics(training_data, model):
 
     for feature, value in zip(features, values):
         prediction = model.predict(feature)
-        print(f"Value = {value}, Prediction = {prediction}")
         if prediction != value:
             errors += 1
             if prediction == 1 and value == 0:
