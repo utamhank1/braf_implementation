@@ -94,3 +94,59 @@ class DecisionTreeClassifier(object):
         :return: list of randomly selected values.
         """
         return [row[i] for i in self.features_indexes]
+
+    """
+        Recursively creates the decision tree by splitting the dataset until no
+        gain of information is added, or until the max depth is reached.
+        :param  rows:   The dataset
+        :param  func:   The function used to calculate the best split and stop
+                        condition
+        :param  depth:  The current depth in the tree
+        """
+
+    def build_tree(self, rows, func, depth):
+        """
+        Builds a decision tree recursively by splitting the dataset until there is no additional information gain or
+        the maximum specified depth is reached.
+        :param rows: list of lists representing the dataset.
+        :param func: function used for calculating stop and split conditions.
+        :param depth: The depth of the tree (current).
+        :return: DecisionNode object.
+        """
+
+        # Base case.
+        if len(rows) == 0:
+            return self.DecisionNode()
+        if depth == 0:
+            return self.DecisionNode(results=unique_counts(rows))
+
+        current_score = func(rows)
+        best_gain = 0.0
+        best_criteria = None
+        best_sets = None
+        column_count = len(rows[0]) - 1
+
+        # Build Tree branches for every column.
+        for col in range(0, column_count):
+            column_values = {}
+            for row in rows:
+                column_values[row[col]] = 1
+            for value in column_values.keys():
+                set1, set2 = divide_set(rows, col, value)
+
+                p = float(len(set1)) / len(rows)
+                gain = current_score - p * func(set1) - (1 - p) * func(set2)
+                if gain > best_gain and len(set1) > 0 and len(set2) > 0:
+                    best_gain = gain
+                    best_criteria = (col, value)
+                    best_sets = (set1, set2)
+
+        # Recursion.
+        if best_gain > 0:
+            trueBranch = self.build_tree(best_sets[0], func, depth - 1)
+            falseBranch = self.build_tree(best_sets[1], func, depth - 1)
+            return self.DecisionNode(col=best_criteria[0],
+                                     value=best_criteria[1],
+                                     tb=trueBranch, fb=falseBranch)
+        else:
+            return self.DecisionNode(results=unique_counts(rows))
