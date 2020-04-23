@@ -48,3 +48,17 @@ class RandomForestClassifier(object):
             rand_fts = map(lambda x: [x, random.sample(data, self.nb_samples)],
                            range(self.nb_trees))
             self.trees = list(executor.map(self.train_tree, rand_fts))
+
+    def predict(self, feature):
+        """
+        Returns a prediction value from the given features based on the value that gets the most "votes" (one from
+        each decision tree).
+        :param feature: list of prediction features.
+        :return: value representing the prediction.
+        """
+        predictions = []
+
+        for tree in self.trees:
+            predictions.append(tree.predict(feature))
+
+        return max(set(predictions), key=predictions.count)
