@@ -10,7 +10,7 @@ import data_preprocessor
 import matplotlib.pyplot as plt
 import seaborn as sns
 import collections
-from braf_helpers import get_neighbors, calc_unique_neighbors
+from braf_helpers import get_neighbors, calc_unique_neighbors, calculate_model_metrics
 from scipy.spatial import KDTree
 import math
 import sklearn
@@ -134,40 +134,14 @@ def main(file):
     # Step c, build the main random forest rf classifier from the full dataset.
     rf = RandomForestClassifier(nb_trees=int((1 - p) * s), nb_samples=K, max_workers=4)
 
+    #rf.fit(list(full_training_dataset_minus_fold))
+
     # Append the random forest generated from the dataset of the critical areas and specif
     rf.fit_combined(list(full_training_dataset_minus_fold), list(T_c.values), nb_trees_2=int(s * p))
 
-    len_data = 0
-    errors = 0
-    true_positive = 0
-    true_negative = 0
-    false_positive = 0
-    false_negative = 0
-    features = [ft[:-1] for ft in training_data.values]
-    values = [ft[-1] for ft in training_data.values]
+    # Calculate metrics from model.
+    [precision, recall, false_positive_rate, true_positive_rate] = calculate_model_metrics(training_data, model=rf)
 
-    for feature, value in zip(features, values):
-        prediction = rf.predict(feature)
-        print(f"Value = {value}, Prediction = {prediction}")
-        if prediction != value:
-            errors += 1
-            if prediction == 1 and value == 0:
-                false_positive += 1
-            else:
-                false_negative += 1
-        elif prediction == 0:
-            true_negative += 1
-        else:
-            true_positive += 1
-        len_data += 1
-    print(f"errors = {errors}")
-    print(f"false_positives = {false_positive}")
-    print(f"false_negatives = {false_negative}")
-    print(f"true_positives = {true_positive}")
-    print(f"true_negatives = {true_negative}")
-    print(f"len_data = {len_data}")
-    print(f"Precision = {true_positive/(true_positive + false_positive)}")
-    print(f"Recall = {true_positive/(true_positive+false_negative)}")
 
 
 if __name__ == "__main__":

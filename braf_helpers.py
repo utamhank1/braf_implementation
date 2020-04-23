@@ -44,3 +44,35 @@ def calc_unique_neighbors(full_dataset, k, T_min):
         T_min_nearest_neighbors.append(get_neighbors(full_dataset, T_min.iloc[i].values, k))
     T_min_nearest_neighbors_flat = [item for sublist in T_min_nearest_neighbors for item in sublist]
     return np.unique(T_min_nearest_neighbors_flat, axis=0)
+
+
+def calculate_model_metrics(training_data, model):
+    len_data = 0
+    errors = 0
+    true_positive = 0
+    true_negative = 0
+    false_positive = 0
+    false_negative = 0
+    features = [ft[:-1] for ft in training_data.values]
+    values = [ft[-1] for ft in training_data.values]
+
+    for feature, value in zip(features, values):
+        prediction = model.predict(feature)
+        print(f"Value = {value}, Prediction = {prediction}")
+        if prediction != value:
+            errors += 1
+            if prediction == 1 and value == 0:
+                false_positive += 1
+            else:
+                false_negative += 1
+        elif prediction == 0:
+            true_negative += 1
+        else:
+            true_positive += 1
+        len_data += 1
+    precision = true_positive / (true_positive + false_positive)
+    recall = true_positive / (true_positive + false_negative)
+    false_positive_rate = false_positive/(false_positive + true_negative)
+    true_positive_rate = true_positive/(true_positive + false_negative)
+
+    return precision, recall, false_positive_rate, true_positive_rate
