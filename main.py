@@ -3,13 +3,17 @@ import os
 import sys
 import pandas as pd
 import scipy
-from scipy import stats
+from scipy import stats as sps
 import numpy as np
 import data_explorer
 import data_preprocessor
 import matplotlib.pyplot as plt
 import seaborn as sns
 import collections
+from braf_helpers import get_neighbors, calc_unique_neighbors, calculate_model_metrics
+import math
+from RandomForestGenerator import RandomForestClassifier
+import braf_main
 
 
 def parse_arguments():
@@ -43,7 +47,6 @@ def main(file):
     ####################################################################################################################
 
     raw_data = pd.DataFrame(pd.read_csv(file))
-    # print(raw_data.head())
 
     ####################################################################################################################
     ############################################ Data Exploration. #####################################################
@@ -87,16 +90,38 @@ def main(file):
     data = processed_data_objects['data_std_dev_2_75_impute_random'][0]
 
     # 80/20 test split for training and holdout data.
-    holdout_data = data[0:int(.2*len(data))]
-    training_data = data[int(.2*len(data)):len(data)]
+    holdout_data = data[0:int(.2 * len(data))]
+    training_data_master = data[int(.2 * len(data)):len(data)]
+
+    # Separate labels from the rest of the dataset
+    holdout_data_labels = holdout_data['Outcome'].copy()
+    holdout_data = holdout_data.drop('Outcome', axis=1)
 
     # TODO: Add K as an input to argparser.
     K = 10
 
-    shuffled_data = training_data.sample(frac=1)
+    shuffled_data = training_data_master.sample(frac=1)
 
     # Create K random divisions of the test data and store them in a pandas dataframe.
     K_folds = pd.DataFrame(np.array_split(shuffled_data, K))
+
+    # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
+    training_data_minus_fold = training_data_master.drop(K_folds[0][0].index)
+
+    ####################################################################################################################
+    ############################################ BRAF Algorithm. #######################################################
+    ####################################################################################################################
+
+    # TODO: Add these parameters as inputs to argparser.
+    p = .5
+    s = 100
+
+    # Calculate metrics from model.
+    [precision, recall, false_positive_rate, true_positive_rate] = braf_main.braf(training_data_minus_fold, s, p, K)
+    print(f"Precision = {precision}")
+    print(f"Recall = {recall}")
+    print(f"FPR = {false_positive_rate}")
+    print(f"TPR = {true_positive_rate}")
 
 
 if __name__ == "__main__":
