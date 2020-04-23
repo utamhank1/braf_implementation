@@ -37,3 +37,14 @@ class RandomForestClassifier(object):
         tree = DecisionTreeClassifier(max_depth=self.max_depth)
         tree.fit(data[1])
         return tree
+
+    def fit(self, data):
+        """
+        Trains the number of decision trees based on self.nb_trees.
+        :param data: list of lists representing the dataset with the last column in each inner list being the prediction
+                     value.
+        """
+        with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+            rand_fts = map(lambda x: [x, random.sample(data, self.nb_samples)],
+                           range(self.nb_trees))
+            self.trees = list(executor.map(self.train_tree, rand_fts))
