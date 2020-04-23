@@ -177,3 +177,27 @@ class DecisionTreeClassifier(object):
             rows = [self.get_features_subset(row) + [row[-1]] for row in rows]
 
         self.root_node = self.build_tree(rows, criterion, self.max_depth)
+
+    def classify(self, observation, tree):
+        """
+        Recursive function that makes a prediction on the label based on the supplied features.
+        :param observation: list of features used for prediction.
+        :param tree: dict object representing current node.
+        :return: integer representing the label classification for the given tree and observation.
+        """
+        if tree.results is not None:
+            return list(tree.results.keys())[0]
+        else:
+            v = observation[tree.col]
+            branch = None
+            if isinstance(v, int) or isinstance(v, float):
+                if v >= tree.value:
+                    branch = tree.tb
+                else:
+                    branch = tree.fb
+            else:
+                if v == tree.value:
+                    branch = tree.tb
+                else:
+                    branch = tree.fb
+            return self.classify(observation, branch)
