@@ -31,6 +31,22 @@ def unique_counts(rows):
     return results
 
 
+def entropy(rows):
+    """
+    Returns the entropy value in the rows of the dataset given.
+    :param rows: list of lists representing the datset supplied (must have label as the last column os each
+                inner list).
+    :return: float representing the entropy value.
+    """
+    results = unique_counts(rows)
+    log2 = lambda x: log(x) / log(2)
+    ent = 0.0
+    for r in results.keys():
+        p = float(results[r]) / len(rows)
+        ent = ent - p * log2(p)
+    return ent
+
+
 class DecisionTreeClassifier(object):
     class DecisionNode(object):
         def __init__(self, col=-1, value=None, results=None, tb=None, fb=None):
@@ -54,8 +70,7 @@ class DecisionTreeClassifier(object):
     def get_features_subset(self, row):
         """
         Returns values that are randomly selected in the given features.
-        :param row: list
+        :param row: list.
         :return: list of randomly selected values.
         """
         return [row[i] for i in self.features_indexes]
-
