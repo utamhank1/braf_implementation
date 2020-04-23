@@ -10,13 +10,10 @@ import data_preprocessor
 import matplotlib.pyplot as plt
 import seaborn as sns
 import collections
-from braf_helpers import get_neighbors, calc_unique_neighbors
-from scipy.spatial import KDTree
+from braf_helpers import get_neighbors, calc_unique_neighbors, calculate_model_metrics
 import math
-import sklearn
-from sklearn.ensemble import RandomForestClassifier
 from RandomForestGenerator import RandomForestClassifier
-import logging
+import braf_main
 
 
 def parse_arguments():
@@ -50,7 +47,6 @@ def main(file):
     ####################################################################################################################
 
     raw_data = pd.DataFrame(pd.read_csv(file))
-    # print(raw_data.head())
 
     ####################################################################################################################
     ############################################ Data Exploration. #####################################################
@@ -110,7 +106,7 @@ def main(file):
     K_folds = pd.DataFrame(np.array_split(shuffled_data, K))
 
     # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
-    training_data = training_data_master.drop(K_folds[0][0].index)
+    training_data_minus_fold = training_data_master.drop(K_folds[0][0].index)
 
     ####################################################################################################################
     ############################################ BRAF Algorithm. #######################################################
@@ -120,36 +116,12 @@ def main(file):
     p = .5
     s = 100
 
-    # Step a, split into T_maj and T_min majority/minority classes.
-    T_maj = training_data.loc[training_data['Outcome'] == 0].reset_index(drop=True)
-    T_min = training_data.loc[training_data['Outcome'] == 1].reset_index(drop=True)
-
-    # Step b, isolate "difficult areas" affecting the minority instances.
-    # For each record in T_min, create the find the k-nearest neighbors, save these nearest neighbors in T_c.
-    full_training_dataset_minus_fold = training_data.values
-    k_nearest_neighbors = int(math.sqrt(len(full_training_dataset_minus_fold)))
-    T_c = pd.DataFrame(calc_unique_neighbors(full_training_dataset_minus_fold, k_nearest_neighbors, T_min),
-                       columns=raw_data.columns)
-
-    # Step c, build the main random forest rf classifier from the full dataset.
-    rf = RandomForestClassifier(nb_trees=int((1 - p) * s), nb_samples=K, max_workers=4)
-
-    # Append the random forest generated from the dataset of the critical areas and specif
-    rf.fit_combined(list(full_training_dataset_minus_fold), list(T_c.values), nb_trees_2=int(s * p))
-
-    len_data = 0
-    errors = 0
-    features = [ft[:-1] for ft in training_data.values]
-    values = [ft[-1] for ft in training_data.values]
-
-    for feature, value in zip(features, values):
-        prediction = rf.predict(feature)
-        print(f"Value = {value}, Prediction = {prediction}")
-        if prediction != value:
-            errors += 1
-        len_data += 1
-    print(f"errors = {errors}")
-    print(f"len_data = {len_data}")
+    # Calculate metrics from model.
+    [precision, recall, false_positive_rate, true_positive_rate] = braf_main.braf(training_data_minus_fold, s, p, K)
+    print(f"Precision = {precision}")
+    print(f"Recall = {recall}")
+    print(f"FPR = {false_positive_rate}")
+    print(f"TPR = {true_positive_rate}")
 
 
 if __name__ == "__main__":
