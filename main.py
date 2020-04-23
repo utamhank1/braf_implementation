@@ -132,7 +132,24 @@ def main(file):
                        columns=raw_data.columns)
 
     # Step c, build the main random forest rf classifier from the full dataset.
+    rf = RandomForestClassifier(nb_trees=int((1 - p) * s), nb_samples=K, max_workers=4)
 
+    # Append the random forest generated from the dataset of the critical areas and specif
+    rf.fit_combined(list(full_training_dataset_minus_fold), list(T_c.values), nb_trees_2=int(s * p))
+
+    len_data = 0
+    errors = 0
+    features = [ft[:-1] for ft in training_data.values]
+    values = [ft[-1] for ft in training_data.values]
+
+    for feature, value in zip(features, values):
+        prediction = rf.predict(feature)
+        print(f"Value = {value}, Prediction = {prediction}")
+        if prediction != value:
+            errors += 1
+        len_data += 1
+    print(f"errors = {errors}")
+    print(f"len_data = {len_data}")
 
 
 if __name__ == "__main__":
