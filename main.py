@@ -3,7 +3,7 @@ import os
 import sys
 import pandas as pd
 import scipy
-from scipy import stats
+from scipy import stats as sps
 import numpy as np
 import data_explorer
 import data_preprocessor
@@ -13,9 +13,10 @@ import collections
 from braf_helpers import get_neighbors, calc_unique_neighbors
 from scipy.spatial import KDTree
 import math
-import ForestBuilder
 import sklearn
 from sklearn.ensemble import RandomForestClassifier
+from RandomForestGenerator import RandomForestClassifier
+import logging
 
 
 def parse_arguments():
@@ -96,6 +97,10 @@ def main(file):
     holdout_data = data[0:int(.2 * len(data))]
     training_data_master = data[int(.2 * len(data)):len(data)]
 
+    # Separate labels from the rest of the dataset
+    holdout_data_labels = holdout_data['Outcome'].copy()
+    holdout_data = holdout_data.drop('Outcome', axis=1)
+
     # TODO: Add K as an input to argparser.
     K = 10
 
@@ -104,13 +109,15 @@ def main(file):
     # Create K random divisions of the test data and store them in a pandas dataframe.
     K_folds = pd.DataFrame(np.array_split(shuffled_data, K))
 
+    # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
     training_data = training_data_master.drop(K_folds[0][0].index)
+
     ####################################################################################################################
     ############################################ BRAF Algorithm. #######################################################
     ####################################################################################################################
 
     # TODO: Add these parameters as inputs to argparser.
-    p = .05
+    p = .5
     s = 100
 
     # Step a, split into T_maj and T_min majority/minority classes.
@@ -119,23 +126,13 @@ def main(file):
 
     # Step b, isolate "difficult areas" affecting the minority instances.
     # For each record in T_min, create the find the k-nearest neighbors, save these nearest neighbors in T_c.
-    full_dataset = training_data.values
-    k = int(math.sqrt(len(full_dataset)))
-    T_c = pd.DataFrame(calc_unique_neighbors(full_dataset, k, T_min), columns=raw_data.columns)
+    full_training_dataset_minus_fold = training_data.values
+    k_nearest_neighbors = int(math.sqrt(len(full_training_dataset_minus_fold)))
+    T_c = pd.DataFrame(calc_unique_neighbors(full_training_dataset_minus_fold, k_nearest_neighbors, T_min),
+                       columns=raw_data.columns)
 
-    print(f"T_c={T_c}")
-    print(f"Len(T_c)={len(T_c)}")
+    # Step c, build the main random forest rf classifier from the full dataset.
 
-    # Step c, build the random forest RF1 from the full dataset.
-    RF1 = ForestBuilder.build_forest(full_dataset, k=K, N_trees=(1 - p) * s)
-    # Step d, build random forest RF2 from the critical dataset T_c
-    RF2 = ForestBuilder.build_forest(T_c.values, k=K, N_trees=p * s)
-    # Step e, Combine both RF1 and RF2 together.
-    RF = RF1 + RF2
-
-    for row in K_folds[0][0].values:
-        prediction = ForestBuilder.make_prediction(RF, row)
-        print('truth = %d : prediction = %d' % (row[-1], prediction))
 
 
 if __name__ == "__main__":

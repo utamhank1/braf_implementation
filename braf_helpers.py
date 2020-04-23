@@ -19,13 +19,13 @@ def euclidean_distance(row1, row2):
 
 
 def get_neighbors(dataset, row, k_neighbors):
-    '''
+    """""
     Calculates the k nearest neighbors to a specific row in an array.
     :param dataset: numpy array.
     :param row: numpy array.
     :param k_neighbors: integer specifying the number of rows to return.
     :return: numpy array of nearest neighbors.
-    '''
+    """
     distances = list()
     for train_row in dataset:
         dist = euclidean_distance(row, train_row)

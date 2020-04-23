@@ -4,4 +4,6 @@
 4. https://towardsdatascience.com/ways-to-detect-and-remove-the-outliers-404d16608dba
 5. https://stackoverflow.com/questions/38468549/how-to-convert-pandas-series-to-tuple-of-index-and-value
 6. https://machinelearningmastery.com/tutorial-to-implement-k-nearest-neighbors-in-python-from-scratch/
-7.
+7. https://medium.com/@hjhuney/implementing-a-random-forest-classification-model-in-python-583891c99652
+8. http://mystatisticsblog.blogspot.com/2017/12/building-random-forest-classifier-from.html
+9. https://www.python-course.eu/Random_Forests.php
