@@ -204,7 +204,7 @@ class DecisionTreeClassifier(object):
     def predict(self, features):
         """
         Returns a prediction for the features given.
-        :param features: list
+        :param features: list.
         :return: integer representing the prediction.
         """
         if self.random_features:
