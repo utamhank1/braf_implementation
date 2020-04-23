@@ -182,8 +182,7 @@ class DecisionTreeClassifier(object):
         """
         Recursive function that makes a prediction on the label based on the supplied features.
         :param observation: list of features used for prediction.
-        :param tree: dict object representing current node.
-        :return: integer representing the label classification for the given tree and observation.
+        :param tree: dict object representing current node.on.
         """
         if tree.results is not None:
             return list(tree.results.keys())[0]
@@ -201,3 +200,17 @@ class DecisionTreeClassifier(object):
                 else:
                     branch = tree.fb
             return self.classify(observation, branch)
+
+    def predict(self, features):
+        """
+        Returns a prediction for the features given.
+        :param features: list
+        :return: integer representing the prediction.
+        """
+        if self.random_features:
+            if not all(i in range(len(features))
+                       for i in self.features_indexes):
+                raise ValueError("Mismatch between the given features and those of the training set")
+            features = self.get_features_subset(features)
+
+        return self.classify(features, self.root_node)
