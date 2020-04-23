@@ -139,6 +139,10 @@ def main(file):
 
     len_data = 0
     errors = 0
+    true_positive = 0
+    true_negative = 0
+    false_positive = 0
+    false_negative = 0
     features = [ft[:-1] for ft in training_data.values]
     values = [ft[-1] for ft in training_data.values]
 
@@ -147,9 +151,23 @@ def main(file):
         print(f"Value = {value}, Prediction = {prediction}")
         if prediction != value:
             errors += 1
+            if prediction == 1 and value == 0:
+                false_positive += 1
+            else:
+                false_negative += 1
+        elif prediction == 0:
+            true_negative += 1
+        else:
+            true_positive += 1
         len_data += 1
     print(f"errors = {errors}")
+    print(f"false_positives = {false_positive}")
+    print(f"false_negatives = {false_negative}")
+    print(f"true_positives = {true_positive}")
+    print(f"true_negatives = {true_negative}")
     print(f"len_data = {len_data}")
+    print(f"Precision = {true_positive/(true_positive + false_positive)}")
+    print(f"Recall = {true_positive/(true_positive+false_negative)}")
 
 
 if __name__ == "__main__":
