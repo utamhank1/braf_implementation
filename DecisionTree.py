@@ -150,3 +150,30 @@ class DecisionTreeClassifier(object):
                                      tb=trueBranch, fb=falseBranch)
         else:
             return self.DecisionNode(results=unique_counts(rows))
+
+    """
+        :param  rows:       The data used to rain the decision tree. It must be a
+                            list of lists. The last vaue of each inner list is the
+                            value to predict.
+        :param  criterion:  The function used to split data at each node of the
+                            tree. If None, the criterion used is entropy.
+        """
+
+    def fit(self, rows, criterion=None):
+        """
+        This function trains the decision tree based on the supplied data.
+        :param rows: list of lists representing the dataset supplied.
+        :param criterion: Function supplied for the purposes of splitting data at each node in a tree. Default is the
+                          entropy function.
+        """
+        if len(rows) < 1:
+            raise ValueError("Not enough samples in the given dataset")
+
+        if not criterion:
+            # Use entropy function as a default.
+            criterion = entropy
+        if self.random_features:
+            self.features_indexes = choose_random_features(rows[0])
+            rows = [self.get_features_subset(row) + [row[-1]] for row in rows]
+
+        self.root_node = self.build_tree(rows, criterion, self.max_depth)
