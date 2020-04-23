@@ -62,3 +62,20 @@ class RandomForestClassifier(object):
             predictions.append(tree.predict(feature))
 
         return max(set(predictions), key=predictions.count)
+
+    def fit_combined(self, data1, data2, nb_trees_2):
+        """
+        This function generates, combines and trains the random forest generated with a dataset data2
+        with size nb_trees_2, with the current random forest generated from data1.
+        :param data1: list The first dataset that you wish to generate a random forest of and train.
+        :param data2: list The second dataset that you wish to combine and train the random forest of.
+        :param nb_trees_2: the intended size of the second random forest associated with data2.
+        """
+        with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+            list_data = [data1, data2]
+            list_nb_trees = [self.nb_trees, nb_trees_2]
+            for data, nb_trees in zip(list_data, list_nb_trees):
+                rand_fts_data = map(lambda x: [x, random.sample(data, self.nb_samples)],
+                                    range(nb_trees))
+                # combined the trained random forests of each dataset together.
+                self.trees += list(executor.map(self.train_tree, rand_fts_data))
