@@ -5,6 +5,8 @@ from a specified number of trees.
 import random
 from concurrent.futures import ProcessPoolExecutor
 from DecisionTree import DecisionTreeClassifier
+import pdb
+from confusion_statistics_helpers import confusion_calculator
 
 
 class RandomForestClassifier(object):
@@ -49,19 +51,20 @@ class RandomForestClassifier(object):
                            range(self.nb_trees))
             self.trees = list(executor.map(self.train_tree, rand_fts))
 
-    def predict(self, feature):
+    def predict(self, feature, value):
         """
         Returns a prediction value from the given features based on the value that gets the most "votes" (one from
         each decision tree).
         :param feature: list of prediction features.
+        :param value: integer or float representing the true value.
         :return: value representing the prediction.
         """
         predictions = []
-
         for tree in self.trees:
             predictions.append(tree.predict(feature))
 
-        return max(set(predictions), key=predictions.count)
+        run_metrics_trees = list(confusion_calculator(predictions, value))
+        return max(set(predictions), key=predictions.count), run_metrics_trees
 
     def fit_combined(self, data1, data2, nb_trees_2):
         """

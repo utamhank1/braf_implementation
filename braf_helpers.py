@@ -3,6 +3,8 @@
 """
 import math
 import numpy as np
+import pdb
+from confusion_statistics_helpers import dict_list_appender
 
 
 def euclidean_distance(row1, row2):
@@ -55,10 +57,12 @@ def calculate_model_metrics(training_data, model):
     false_negative = 0
     features = [ft[:-1] for ft in training_data.values]
     values = [ft[-1] for ft in training_data.values]
+    metrics_dict_trees = {'precision': [], 'recall': [], 'FPR': []}
 
     for feature, value in zip(features, values):
-        prediction = model.predict(feature)
-        print(f"Value = {value}, Prediction = {prediction}")
+        prediction, tree_metrics = model.predict(feature, value)
+        #print(f"Value = {value}, Prediction = {prediction}")
+        metrics_dict_trees = dict_list_appender(metrics_dict_trees, tree_metrics)
         if prediction != value:
             errors += 1
             if prediction == 1 and value == 0:
@@ -74,4 +78,4 @@ def calculate_model_metrics(training_data, model):
     recall = true_positive / (true_positive + false_negative)
     false_positive_rate = false_positive/(false_positive + true_negative)
 
-    return precision, recall, false_positive_rate
+    return precision, recall, false_positive_rate, metrics_dict_trees

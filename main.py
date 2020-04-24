@@ -14,6 +14,8 @@ from braf_helpers import get_neighbors, calc_unique_neighbors, calculate_model_m
 import math
 from RandomForestGenerator import RandomForestClassifier
 import braf_main
+from confusion_statistics_helpers import dict_list_appender
+import pdb
 
 
 def parse_arguments():
@@ -115,8 +117,9 @@ def main(file):
     p = .5
     s = 100
     metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
+    metrics_dict_tree_master = {'precision': [], 'recall': [], 'FPR': []}
 
-    for i in range(0, len(K_folds)):
+    for i in range(0, 1):
 
         # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
         training_data_minus_fold = training_data_master.drop(K_folds[0][i].index)
@@ -124,21 +127,23 @@ def main(file):
         # # Calculate metrics from model.
         run_metrics = braf_main.braf(training_data=training_data_minus_fold, test_data=K_folds[0][i], s=s, p=p, K=K)
 
-        for key, index in zip(metrics_dict.keys(), range(0, len(run_metrics))):
-            metrics_dict[key].append(run_metrics[index])
+        metrics_dict = dict_list_appender(metrics_dict, run_metrics[:-1])
+
+        for key in metrics_dict_tree_master.keys():
+            metrics_dict_tree_master[key] = metrics_dict_tree_master[key] + run_metrics[-1][key]
 
         # print(f"Precision = {precision}")
         # print(f"Recall = {recall}")
         # print(f"FPR = {false_positive_rate}")
-    metrics_dict = pd.read_csv('metrics_for_10_folds.csv')
-    print(metrics_dict)
-    plt.plot(metrics_dict['FPR'], metrics_dict['recall'], c='g', linewidth=4)
-    plt.xlabel('False Positive Rate', fontsize=16)
-    plt.ylabel('True Positive Rate', fontsize=16)
-    plt.title('Receiver Operating Characteristic', fontsize=16)
-    plt.legend(loc='lower right', fontsize=16)
+    # metrics_dict = pd.read_csv('metrics_for_10_folds.csv')
+    print(metrics_dict_tree_master)
+    # plt.plot(metrics_dict['FPR'], metrics_dict['recall'], c='g', linewidth=4)
+    # plt.xlabel('False Positive Rate', fontsize=16)
+    # plt.ylabel('True Positive Rate', fontsize=16)
+    # plt.title('Receiver Operating Characteristic', fontsize=16)
+    # plt.legend(loc='lower right', fontsize=16)
 
-    metrics_dataframe = pd.DataFrame(metrics_dict)
+    # metrics_dataframe = pd.DataFrame(metrics_dict)
 
     #metrics_dataframe.to_csv(f'metrics_for_{K}_folds_iter3.csv')
 
