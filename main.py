@@ -16,6 +16,7 @@ from RandomForestGenerator import RandomForestClassifier
 import braf_main
 from confusion_statistics_helpers import dict_list_appender
 import pdb
+from confusion_statistics_helpers import roc_curve
 
 
 def parse_arguments():
@@ -72,7 +73,7 @@ def main(file):
     # TODO: Generate all of the processed_data objects.
     # std_dev_to_keep = [2.5, 2.75, 3.0]
     # imputation_methods = ['random', 'mean', 'median']
-    std_dev_to_keep = [2.75]
+    std_dev_to_keep = [3.0]
     imputation_methods = ['random']
     processed_data_objects = collections.defaultdict(list)
 
@@ -89,7 +90,7 @@ def main(file):
     ####################################################################################################################
 
     # TODO: Iterate through all of the objects in processed_data objects.
-    data = processed_data_objects['data_std_dev_2_75_impute_random'][0]
+    data = processed_data_objects['data_std_dev_3_0_impute_random'][0]
 
     # 80/20 test split for training and holdout data.
     holdout_data = data[0:int(.2 * len(data))]
@@ -97,7 +98,7 @@ def main(file):
 
     # Separate labels from the rest of the dataset
     holdout_data_labels = holdout_data['Outcome'].copy()
-    holdout_data = holdout_data.drop('Outcome', axis=1)
+    #holdout_data = holdout_data.drop('Outcome', axis=1)
 
     # TODO: Add K as an input to argparser.
     K = 10
@@ -117,9 +118,10 @@ def main(file):
     p = .5
     s = 100
     metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
-    metrics_dict_tree_master = {'precision': [], 'recall': [], 'FPR': []}
+    metrics_dict_tree_master = {'training_outcomes': [], 'probabilities': []}
 
-    for i in range(0, 1):
+    for i in range(0, len(K_folds[0])):
+        # for i in range(0, 1):
 
         # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
         training_data_minus_fold = training_data_master.drop(K_folds[0][i].index)
@@ -128,24 +130,73 @@ def main(file):
         run_metrics = braf_main.braf(training_data=training_data_minus_fold, test_data=K_folds[0][i], s=s, p=p, K=K)
 
         metrics_dict = dict_list_appender(metrics_dict, run_metrics[:-1])
-
         for key in metrics_dict_tree_master.keys():
-            metrics_dict_tree_master[key] = metrics_dict_tree_master[key] + run_metrics[-1][key]
+            metrics_dict_tree_master[key] = metrics_dict_tree_master[key] + run_metrics[-2][key]
+        # if i == 0:
+        #     for key in metrics_dict_tree_master.keys():
+        #         metrics_dict_tree_master[key] = metrics_dict_tree_master[key] + run_metrics[-1][key]
+        # else:
+        #     # lists = (metrics_dict_tree_master['precision'], dict2['precision'])
+        #     # print(dict1['precision'])
+        #     # summed_list = list(map(sum, zip(*lists)))
+        #     # newList = [x / myInt for x in summed_list]
+        #     # print(newList)
 
-        # print(f"Precision = {precision}")
-        # print(f"Recall = {recall}")
-        # print(f"FPR = {false_positive_rate}")
-    # metrics_dict = pd.read_csv('metrics_for_10_folds.csv')
-    print(metrics_dict_tree_master)
-    # plt.plot(metrics_dict['FPR'], metrics_dict['recall'], c='g', linewidth=4)
-    # plt.xlabel('False Positive Rate', fontsize=16)
-    # plt.ylabel('True Positive Rate', fontsize=16)
-    # plt.title('Receiver Operating Characteristic', fontsize=16)
-    # plt.legend(loc='lower right', fontsize=16)
+    df_metrics_dict_tree_master = pd.DataFrame(metrics_dict_tree_master)
+    df_metrics_dict = pd.DataFrame(metrics_dict)
+    print(df_metrics_dict)
+    print(f"df_metrics_dict['recall'].idxmin(axis=0) = {df_metrics_dict['recall'].idxmin(axis=0)}")
+    df_metrics_dict_tree_master.to_csv(f'df_metrics_dict_tree_master_with_probs_iter3.csv')
+    df_metrics_dict.to_csv(f'df_metrics_dict_iter7.csv')
 
-    # metrics_dataframe = pd.DataFrame(metrics_dict)
+    fpr, tpr, threshold = roc_curve(df_metrics_dict_tree_master['training_outcomes'],
+                                    df_metrics_dict_tree_master['probabilities'])
 
-    #metrics_dataframe.to_csv(f'metrics_for_{K}_folds_iter3.csv')
+    plt.plot(fpr, tpr, 'b')
+    plt.plot([0, 1], [0, 1], 'r--')
+    plt.title("Training data Performance")
+    plt.xlabel("False Positive Rate", fontsize=12)
+    plt.ylabel("True Positive Rate", fontsize=12)
+
+    plt.show()
+
+    ###################################################################################################################
+    ############################################# Testing Data Metrics. ###############################################
+    ###################################################################################################################
+
+    metrics_dict_test = {'precision': [], 'recall': [], 'FPR': []}
+    metrics_dict_tree_master_test = {'training_outcomes': [], 'probabilities': []}
+
+    # Apply best model from training data (one with highest recall)
+    best_index = df_metrics_dict['recall'].idxmax(axis=0)
+
+    # Train model on best k-fold of training data, and apply it to make predictions on test data.
+    # # Calculate metrics from model.
+    training_data_minus_fold_for_test = training_data_master.drop(K_folds[0][best_index].index)
+    run_metrics_test = braf_main.braf(training_data=training_data_minus_fold_for_test, test_data=holdout_data,
+                                      s=s, p=p, K=K)
+
+    metrics_dict_test = dict_list_appender(metrics_dict_test, run_metrics_test[:-1])
+    for key in metrics_dict_tree_master_test.keys():
+        metrics_dict_tree_master_test[key] = metrics_dict_tree_master_test[key] + run_metrics_test[-2][key]
+
+    df_metrics_dict_tree_master_test = pd.DataFrame(metrics_dict_tree_master_test)
+    df_metrics_dict_test = pd.DataFrame(metrics_dict_test)
+    print(df_metrics_dict_test)
+    df_metrics_dict_tree_master_test.to_csv(f'df_metrics_dict_tree_master_with_probs_TEST.csv')
+    df_metrics_dict_test.to_csv(f'df_metrics_dict_TEST.csv')
+
+    fpr, tpr, threshold = roc_curve(df_metrics_dict_tree_master_test['training_outcomes'],
+                                    df_metrics_dict_tree_master_test['probabilities'])
+
+    plt.plot(fpr, tpr, 'b')
+    plt.plot([0, 1], [0, 1], 'r--')
+    plt.title("Testing data Performance")
+    plt.xlabel("False Positive Rate", fontsize=12)
+    plt.ylabel("True Positive Rate", fontsize=12)
+
+    plt.show()
+
 
 if __name__ == "__main__":
     arguments = parse_arguments()

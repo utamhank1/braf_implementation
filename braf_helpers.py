@@ -57,12 +57,14 @@ def calculate_model_metrics(training_data, model):
     false_negative = 0
     features = [ft[:-1] for ft in training_data.values]
     values = [ft[-1] for ft in training_data.values]
-    metrics_dict_trees = {'precision': [], 'recall': [], 'FPR': []}
+    metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
+    metrics_dict_trees = {'training_outcomes': [], 'probabilities': []}
 
     for feature, value in zip(features, values):
-        prediction, tree_metrics = model.predict(feature, value)
+        prediction, tree_metrics, metrics = model.predict(feature, value)
         #print(f"Value = {value}, Prediction = {prediction}")
         metrics_dict_trees = dict_list_appender(metrics_dict_trees, tree_metrics)
+        metrics_dict = dict_list_appender(metrics_dict, metrics)
         if prediction != value:
             errors += 1
             if prediction == 1 and value == 0:
@@ -74,8 +76,23 @@ def calculate_model_metrics(training_data, model):
         else:
             true_positive += 1
         len_data += 1
-    precision = true_positive / (true_positive + false_positive)
-    recall = true_positive / (true_positive + false_negative)
-    false_positive_rate = false_positive/(false_positive + true_negative)
+    # precision = true_positive / (true_positive + false_positive)
+    # recall = true_positive / (true_positive + false_negative)
+    # false_positive_rate = false_positive/(false_positive + true_negative)
 
-    return precision, recall, false_positive_rate, metrics_dict_trees
+
+    # Handle edge cases
+    if true_positive + false_negative == 0:
+        precision = 1
+    else:
+        precision = true_positive / (true_positive + false_positive)
+    if true_positive + false_negative == 0:
+        recall = 1
+    else:
+        recall = true_positive / (true_positive + false_negative)
+    if false_positive + true_negative == 0:
+        false_positive_rate = 0
+    else:
+        false_positive_rate = false_positive / (false_positive + true_negative)
+
+    return precision, recall, false_positive_rate, metrics_dict_trees, metrics_dict

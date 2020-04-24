@@ -10,3 +10,4 @@
 10. https://www.tutorialspoint.com/How-to-save-a-Python-Dictionary-to-CSV-file
 11. https://medium.com/datadriveninvestor/k-fold-cross-validation-6b8518070833
 12. https://shapeofdata.wordpress.com/2015/01/05/precision-recall-aucs-and-rocs/
+13. https://stackoverflow.com/questions/51423494/why-are-my-precision-recall-and-roc-curves-not-smooth
