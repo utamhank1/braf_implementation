@@ -118,8 +118,16 @@ def main(file):
     # Step b, isolate "difficult areas" affecting the minority instances.
     # For each record in T_min, create the find the k-nearest neighbors, save these nearest neighbors in T_c.
     full_dataset = K_folds[0][0].values
+
+    # TODO redo this to select k when calculating T_c instead of 3.
     k = int(math.sqrt(len(full_dataset)))
-    T_c = calc_unique_neighbors(full_dataset, k, T_min)
+    T_c = calc_unique_neighbors(full_dataset, 1, T_min)
+
+    # print(T_c)
+    # print("----------------------------------------------------------------------------------------------------------")
+    # print(full_dataset)
+    print(f"len(T_min) = {len(T_min)}")
+    print(len(full_dataset))
     print(len(T_c))
 
 
