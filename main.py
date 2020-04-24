@@ -105,8 +105,7 @@ def main(file):
     # Create K random divisions of the test data and store them in a pandas dataframe.
     K_folds = pd.DataFrame(np.array_split(shuffled_data, K))
 
-    # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
-    training_data_minus_fold = training_data_master.drop(K_folds[0][0].index)
+    number_folds = len(K_folds)
 
     ####################################################################################################################
     ############################################ BRAF Algorithm. #######################################################
@@ -115,14 +114,33 @@ def main(file):
     # TODO: Add these parameters as inputs to argparser.
     p = .5
     s = 100
+    metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
 
-    # Calculate metrics from model.
-    [precision, recall, false_positive_rate, true_positive_rate] = braf_main.braf(training_data_minus_fold, s, p, K)
-    print(f"Precision = {precision}")
-    print(f"Recall = {recall}")
-    print(f"FPR = {false_positive_rate}")
-    print(f"TPR = {true_positive_rate}")
+    for i in range(0, len(K_folds)):
 
+        # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
+        training_data_minus_fold = training_data_master.drop(K_folds[0][i].index)
+
+        # # Calculate metrics from model.
+        run_metrics = braf_main.braf(training_data=training_data_minus_fold, test_data=K_folds[0][i], s=s, p=p, K=K)
+
+        for key, index in zip(metrics_dict.keys(), range(0, len(run_metrics))):
+            metrics_dict[key].append(run_metrics[index])
+
+        # print(f"Precision = {precision}")
+        # print(f"Recall = {recall}")
+        # print(f"FPR = {false_positive_rate}")
+    metrics_dict = pd.read_csv('metrics_for_10_folds.csv')
+    print(metrics_dict)
+    plt.plot(metrics_dict['FPR'], metrics_dict['recall'], c='g', linewidth=4)
+    plt.xlabel('False Positive Rate', fontsize=16)
+    plt.ylabel('True Positive Rate', fontsize=16)
+    plt.title('Receiver Operating Characteristic', fontsize=16)
+    plt.legend(loc='lower right', fontsize=16)
+
+    metrics_dataframe = pd.DataFrame(metrics_dict)
+
+    #metrics_dataframe.to_csv(f'metrics_for_{K}_folds_iter3.csv')
 
 if __name__ == "__main__":
     arguments = parse_arguments()

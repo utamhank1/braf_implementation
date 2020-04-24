@@ -7,3 +7,6 @@
 7. https://medium.com/@hjhuney/implementing-a-random-forest-classification-model-in-python-583891c99652
 8. http://mystatisticsblog.blogspot.com/2017/12/building-random-forest-classifier-from.html
 9. https://www.python-course.eu/Random_Forests.php
+10. https://www.tutorialspoint.com/How-to-save-a-Python-Dictionary-to-CSV-file
+11. https://medium.com/datadriveninvestor/k-fold-cross-validation-6b8518070833
+12. https://shapeofdata.wordpress.com/2015/01/05/precision-recall-aucs-and-rocs/

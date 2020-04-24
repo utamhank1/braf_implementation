@@ -58,6 +58,7 @@ def calculate_model_metrics(training_data, model):
 
     for feature, value in zip(features, values):
         prediction = model.predict(feature)
+        print(f"Value = {value}, Prediction = {prediction}")
         if prediction != value:
             errors += 1
             if prediction == 1 and value == 0:
@@ -72,6 +73,5 @@ def calculate_model_metrics(training_data, model):
     precision = true_positive / (true_positive + false_positive)
     recall = true_positive / (true_positive + false_negative)
     false_positive_rate = false_positive/(false_positive + true_negative)
-    true_positive_rate = true_positive/(true_positive + false_negative)
 
-    return precision, recall, false_positive_rate, true_positive_rate
+    return precision, recall, false_positive_rate

@@ -9,17 +9,17 @@ import math
 from RandomForestGenerator import RandomForestClassifier
 
 
-def braf(training_data_minus_fold, s, p, K):
+def braf(training_data, test_data, s, p, K):
 
     # Step a, extract T_min minority class from training dataset.
-    T_min = training_data_minus_fold.loc[training_data_minus_fold['Outcome'] == 1].reset_index(drop=True)
+    T_min = training_data.loc[training_data['Outcome'] == 1].reset_index(drop=True)
 
     # Step b, isolate "difficult areas" affecting the minority instances.
     # For each record in T_min, create the find the k-nearest neighbors, save these nearest neighbors in T_c.
-    training_data_minus_fold_values = training_data_minus_fold.values
+    training_data_minus_fold_values = training_data.values
     k_nearest_neighbors = int(math.sqrt(len(training_data_minus_fold_values)))
     T_c = pd.DataFrame(calc_unique_neighbors(training_data_minus_fold_values, k_nearest_neighbors, T_min),
-                       columns=training_data_minus_fold.columns)
+                       columns=training_data.columns)
 
     # Step c, build the main random forest rf classifier from the full dataset.
     rf = RandomForestClassifier(nb_trees=int((1 - p) * s), nb_samples=K, max_workers=4)
@@ -29,5 +29,5 @@ def braf(training_data_minus_fold, s, p, K):
     rf.fit_combined(list(training_data_minus_fold_values), list(T_c.values), nb_trees_2=int(s * p))
 
     # Calculate metrics from model.
-    return calculate_model_metrics(training_data_minus_fold, model=rf)
+    return calculate_model_metrics(test_data, model=rf)
 
