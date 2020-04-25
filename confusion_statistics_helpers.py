@@ -43,12 +43,20 @@ def confusion_calculator(prediction_list, value):
 
 
 def tree_probability_calculator(prediction_list, value):
-
     if value == 1:
         prob_hit = sum(prediction_list) / len(prediction_list)
     else:
         prob_hit = (len(prediction_list) - sum(prediction_list)) / len(prediction_list)
     return value, prob_hit
+
+
+def integrate(x, y):
+    sm = 0
+    for i in range(1, len(x)):
+        h = x[i] - x[i - 1]
+        sm += h * (y[i - 1] + y[i]) / 2
+
+    return sm
 
 
 def roc_curve(y, prob):
@@ -66,7 +74,8 @@ def roc_curve(y, prob):
         FPR = FP / (FP + TN)
         tpr_list.append(TPR)
         fpr_list.append(FPR)
-    return fpr_list, tpr_list, threshold
+        auc = integrate(fpr_list, tpr_list)
+    return fpr_list, tpr_list, threshold, auc
 
 
 def plot_prc_curve(precision, recall, plot_title):

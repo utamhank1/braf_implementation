@@ -73,7 +73,7 @@ def main(file):
     # TODO: Generate all of the processed_data objects.
     # std_dev_to_keep = [2.5, 2.75, 3.0]
     # imputation_methods = ['random', 'mean', 'median']
-    std_dev_to_keep = [3.0]
+    std_dev_to_keep = [3.5]
     imputation_methods = ['random']
     processed_data_objects = collections.defaultdict(list)
 
@@ -116,13 +116,13 @@ def main(file):
     ####################################################################################################################
 
     # TODO: Add these parameters as inputs to argparser.
-    p = .6
+    p = .7
     s = 100
     metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
     metrics_dict_tree_master = {'training_outcomes': [], 'probabilities': []}
 
     for i in range(0, len(K_folds[0])):
-    #for i in range(0, 1):
+        # for i in range(0, 1):
 
         # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
         training_data_minus_fold = training_data_master.drop(K_folds[0][i].index)
@@ -142,12 +142,12 @@ def main(file):
     # df_metrics_dict_tree_master.to_csv(f'df_metrics_dict_tree_master_with_probs_iter3.csv')
     # df_metrics_dict.to_csv(f'df_metrics_dict_iter7.csv')
 
-    fpr, tpr, threshold = roc_curve(df_metrics_dict_tree_master['training_outcomes'],
-                                    df_metrics_dict_tree_master['probabilities'])
+    fpr, tpr, threshold, auc = roc_curve(df_metrics_dict_tree_master['training_outcomes'],
+                                         df_metrics_dict_tree_master['probabilities'])
 
     plt.plot(fpr, tpr, 'b')
     plt.plot([0, 1], [0, 1], 'r--')
-    plt.title("Training data Performance")
+    plt.title(f"Testing data Performance: AUC = {auc}")
     plt.xlabel("False Positive Rate", fontsize=12)
     plt.ylabel("True Positive Rate", fontsize=12)
 
@@ -188,12 +188,12 @@ def main(file):
     df_metrics_dict_tree_master_test.to_csv(f'df_metrics_dict_tree_master_with_probs_TEST.csv')
     df_metrics_dict_test.to_csv(f'df_metrics_dict_TEST.csv')
 
-    fpr, tpr, threshold = roc_curve(df_metrics_dict_tree_master_test['training_outcomes'],
-                                    df_metrics_dict_tree_master_test['probabilities'])
+    fpr, tpr, threshold, auc = roc_curve(df_metrics_dict_tree_master_test['training_outcomes'],
+                                         df_metrics_dict_tree_master_test['probabilities'])
 
     plt.plot(fpr, tpr, 'b')
     plt.plot([0, 1], [0, 1], 'r--')
-    plt.title("Testing data Performance")
+    plt.title(f"Testing data Performance: AUC = {auc}")
     plt.xlabel("False Positive Rate", fontsize=12)
     plt.ylabel("True Positive Rate", fontsize=12)
 
