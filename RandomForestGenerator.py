@@ -62,8 +62,6 @@ class RandomForestClassifier(object):
         predictions = []
         for tree in self.trees:
             predictions.append(tree.predict(feature))
-        # print(predictions)
-        # print(f"value = {value}")
         run_metrics_trees = tree_probability_calculator(predictions, value)
         run_metrics = confusion_calculator(predictions, value)
         # print(f"run_metrics_trees = {run_metrics_trees}")

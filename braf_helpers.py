@@ -34,7 +34,7 @@ def get_neighbors(dataset, row, k_neighbors):
         distances.append((train_row, dist))
     distances.sort(key=lambda tup: tup[1])
     neighbors = list()
-    for i in range(k_neighbors):
+    for i in range(0, k_neighbors):
         neighbors.append(distances[i][0])
     return neighbors
 
@@ -58,11 +58,11 @@ def calculate_model_metrics(training_data, model):
     features = [ft[:-1] for ft in training_data.values]
     values = [ft[-1] for ft in training_data.values]
     metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
-    metrics_dict_trees = {'training_outcomes': [], 'probabilities': []}
+    metrics_dict_trees = {'training_outcomes': [], 'probabilities': [], 'precision': [], 'recall': []}
 
     for feature, value in zip(features, values):
         prediction, tree_metrics, metrics = model.predict(feature, value)
-        #print(f"Value = {value}, Prediction = {prediction}")
+        # print(f"Value = {value}, Prediction = {prediction}")
         metrics_dict_trees = dict_list_appender(metrics_dict_trees, tree_metrics)
         metrics_dict = dict_list_appender(metrics_dict, metrics)
         if prediction != value:
@@ -76,16 +76,12 @@ def calculate_model_metrics(training_data, model):
         else:
             true_positive += 1
         len_data += 1
-    # precision = true_positive / (true_positive + false_positive)
+    precision = true_positive / (true_positive + false_positive)
     # recall = true_positive / (true_positive + false_negative)
     # false_positive_rate = false_positive/(false_positive + true_negative)
 
 
     # Handle edge cases
-    if true_positive + false_negative == 0:
-        precision = 1
-    else:
-        precision = true_positive / (true_positive + false_positive)
     if true_positive + false_negative == 0:
         recall = 1
     else:

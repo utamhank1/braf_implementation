@@ -16,7 +16,7 @@ from RandomForestGenerator import RandomForestClassifier
 import braf_main
 from confusion_statistics_helpers import dict_list_appender
 import pdb
-from confusion_statistics_helpers import roc_curve
+from confusion_statistics_helpers import roc_curve, plot_prc_curve
 
 
 def parse_arguments():
@@ -90,7 +90,8 @@ def main(file):
     ####################################################################################################################
 
     # TODO: Iterate through all of the objects in processed_data objects.
-    data = processed_data_objects['data_std_dev_3_0_impute_random'][0]
+    data = processed_data_objects[
+        f"data_std_dev_{str(std_dev_to_keep[0]).replace('.', '_')}_impute_{str(imputation_methods[0])}"][0]
 
     # 80/20 test split for training and holdout data.
     holdout_data = data[0:int(.2 * len(data))]
@@ -98,7 +99,7 @@ def main(file):
 
     # Separate labels from the rest of the dataset
     holdout_data_labels = holdout_data['Outcome'].copy()
-    #holdout_data = holdout_data.drop('Outcome', axis=1)
+    # holdout_data = holdout_data.drop('Outcome', axis=1)
 
     # TODO: Add K as an input to argparser.
     K = 10
@@ -115,13 +116,13 @@ def main(file):
     ####################################################################################################################
 
     # TODO: Add these parameters as inputs to argparser.
-    p = .5
+    p = .6
     s = 100
     metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
     metrics_dict_tree_master = {'training_outcomes': [], 'probabilities': []}
 
     for i in range(0, len(K_folds[0])):
-        # for i in range(0, 1):
+    #for i in range(0, 1):
 
         # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
         training_data_minus_fold = training_data_master.drop(K_folds[0][i].index)
@@ -132,22 +133,14 @@ def main(file):
         metrics_dict = dict_list_appender(metrics_dict, run_metrics[:-1])
         for key in metrics_dict_tree_master.keys():
             metrics_dict_tree_master[key] = metrics_dict_tree_master[key] + run_metrics[-2][key]
-        # if i == 0:
-        #     for key in metrics_dict_tree_master.keys():
-        #         metrics_dict_tree_master[key] = metrics_dict_tree_master[key] + run_metrics[-1][key]
-        # else:
-        #     # lists = (metrics_dict_tree_master['precision'], dict2['precision'])
-        #     # print(dict1['precision'])
-        #     # summed_list = list(map(sum, zip(*lists)))
-        #     # newList = [x / myInt for x in summed_list]
-        #     # print(newList)
 
     df_metrics_dict_tree_master = pd.DataFrame(metrics_dict_tree_master)
     df_metrics_dict = pd.DataFrame(metrics_dict)
+    print(metrics_dict_tree_master)
     print(df_metrics_dict)
-    print(f"df_metrics_dict['recall'].idxmin(axis=0) = {df_metrics_dict['recall'].idxmin(axis=0)}")
-    df_metrics_dict_tree_master.to_csv(f'df_metrics_dict_tree_master_with_probs_iter3.csv')
-    df_metrics_dict.to_csv(f'df_metrics_dict_iter7.csv')
+    print(f"df_metrics_dict['recall'].idxmax(axis=0) = {df_metrics_dict['recall'].idxmax(axis=0)}")
+    # df_metrics_dict_tree_master.to_csv(f'df_metrics_dict_tree_master_with_probs_iter3.csv')
+    # df_metrics_dict.to_csv(f'df_metrics_dict_iter7.csv')
 
     fpr, tpr, threshold = roc_curve(df_metrics_dict_tree_master['training_outcomes'],
                                     df_metrics_dict_tree_master['probabilities'])
@@ -159,6 +152,11 @@ def main(file):
     plt.ylabel("True Positive Rate", fontsize=12)
 
     plt.show()
+    print(f"df_metrics_dict['precision']={df_metrics_dict['precision']}")
+    print(f"type(df_metrics_dict['precision']) = {type(df_metrics_dict['precision'])}")
+    print(f"df_metrics_dict['recall'] = {df_metrics_dict['recall']}")
+    print(f"type(df_metrics_dict['recall']) = {df_metrics_dict['recall']}")
+    plot_prc_curve(list(df_metrics_dict['precision']), list(df_metrics_dict['recall']), 'Training Data')
 
     ###################################################################################################################
     ############################################# Testing Data Metrics. ###############################################
@@ -169,7 +167,11 @@ def main(file):
 
     # Apply best model from training data (one with highest recall)
     best_index = df_metrics_dict['recall'].idxmax(axis=0)
-
+    # average = []
+    # for i in range(0, len(df_metrics_dict)):
+    #     average.append((df_metrics_dict['precision'][i] + df_metrics_dict['recall'][i]) / 2)
+    # best_index = average.index(max(average))
+    print(f"best_index = {best_index}")
     # Train model on best k-fold of training data, and apply it to make predictions on test data.
     # # Calculate metrics from model.
     training_data_minus_fold_for_test = training_data_master.drop(K_folds[0][best_index].index)
@@ -196,6 +198,9 @@ def main(file):
     plt.ylabel("True Positive Rate", fontsize=12)
 
     plt.show()
+
+    # plot_prc_curve(metrics_dict_test['precision'], metrics_dict_test['recall'],
+    #                'Testing Data')
 
 
 if __name__ == "__main__":

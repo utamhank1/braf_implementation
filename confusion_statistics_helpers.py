@@ -3,6 +3,9 @@
 the precision, recall, and false positive rate(FPR).
 """
 import numpy as np
+import matplotlib.pyplot as plt
+import pdb
+
 
 def dict_list_appender(dictionary1, list1):
     for key, index in zip(dictionary1.keys(), range(0, len(list1))):
@@ -25,7 +28,7 @@ def confusion_calculator(prediction_list, value):
             true_negative += 1
         else:
             true_positive += 1
-    precision = true_positive / (true_positive + false_positive)
+    precision = true_positive / len(prediction_list)
     # Handle edge cases
     if true_positive + false_negative == 0:
         recall = 1
@@ -40,6 +43,7 @@ def confusion_calculator(prediction_list, value):
 
 
 def tree_probability_calculator(prediction_list, value):
+
     if value == 1:
         prob_hit = sum(prediction_list) / len(prediction_list)
     else:
@@ -63,3 +67,21 @@ def roc_curve(y, prob):
         tpr_list.append(TPR)
         fpr_list.append(FPR)
     return fpr_list, tpr_list, threshold
+
+
+def plot_prc_curve(precision, recall, plot_title):
+    # recall = np.linspace(0.0, 1.0, num=42)
+    # precision = np.random.rand(42) * (1. - recall)
+
+    # take a running maximum over the reversed vector of precision values, reverse the
+    # result to match the order of the recall vector
+    decreasing_max_precision = np.maximum.accumulate(precision[::-1])[::-1]
+    fig, ax = plt.subplots(1, 1)
+    ax.hold(True)
+    ax.plot(recall, precision, '--b')
+    ax.step(recall, decreasing_max_precision, '-r')
+    # ax.legend()
+    ax.set_xlabel("recall")
+    ax.set_ylabel("precision")
+    plt.title(f'Precision-Recall Curve for {plot_title}')
+    plt.show()
