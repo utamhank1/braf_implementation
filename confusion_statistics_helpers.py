@@ -62,7 +62,7 @@ def integrate(x, y):
 def roc_curve(y, prob):
     tpr_list = []
     fpr_list = []
-    threshold = np.linspace(1.1, 0, 10)
+    threshold = np.linspace(1.1, 0, len(prob))
     for t in threshold:
         y_pred = np.zeros(y.shape[0])
         y_pred[prob >= t] = 1
@@ -78,19 +78,44 @@ def roc_curve(y, prob):
     return fpr_list, tpr_list, threshold, auc
 
 
-def plot_prc_curve(precision, recall, plot_title):
+def prc_curve(y, prob):
+    tpr_list = []
+    fpr_list = []
+    precision_list = []
+    threshold = np.linspace(1.1, 0, len(prob))
+    for t in threshold:
+        y_pred = np.zeros(y.shape[0])
+        y_pred[prob >= t] = 1
+        TN = y_pred[(y_pred == y) & (y == 0)].shape[0]
+        TP = y_pred[(y_pred == y) & (y == 1)].shape[0]
+        FP = y_pred[(y_pred != y) & (y == 0)].shape[0]
+        FN = y_pred[(y_pred != y) & (y == 1)].shape[0]
+        TPR = TP / (TP + FN)
+        FPR = FP / (FP + TN)
+        tpr_list.append(TPR)
+        fpr_list.append(FPR)
+        if TPR + FPR == 0:
+            precision_list.append(1)
+        else:
+            precision_list.append(TPR/(FPR+TPR))
+        auc = integrate(tpr_list, precision_list)
+    print(f"tpr_list = {tpr_list}")
+    print(f"fpr_list = {fpr_list}")
+    return tpr_list, precision_list, threshold, auc
+
+
     # recall = np.linspace(0.0, 1.0, num=42)
     # precision = np.random.rand(42) * (1. - recall)
 
     # take a running maximum over the reversed vector of precision values, reverse the
     # result to match the order of the recall vector
-    decreasing_max_precision = np.maximum.accumulate(precision[::-1])[::-1]
-    fig, ax = plt.subplots(1, 1)
-    ax.hold(True)
-    ax.plot(recall, precision, '--b')
-    ax.step(recall, decreasing_max_precision, '-r')
-    # ax.legend()
-    ax.set_xlabel("recall")
-    ax.set_ylabel("precision")
-    plt.title(f'Precision-Recall Curve for {plot_title}')
-    plt.show()
+    # decreasing_max_precision = np.maximum.accumulate(precision[::-1])[::-1]
+    # fig, ax = plt.subplots(1, 1)
+    # ax.hold(True)
+    # ax.plot(recall, precision, '--b')
+    # ax.step(recall, decreasing_max_precision, '-r')
+    # # ax.legend()
+    # ax.set_xlabel("recall")
+    # ax.set_ylabel("precision")
+    # plt.title(f'Precision-Recall Curve for {plot_title}')
+    # plt.show()

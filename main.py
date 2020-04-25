@@ -16,7 +16,7 @@ from RandomForestGenerator import RandomForestClassifier
 import braf_main
 from confusion_statistics_helpers import dict_list_appender
 import pdb
-from confusion_statistics_helpers import roc_curve, plot_prc_curve
+from confusion_statistics_helpers import roc_curve, prc_curve
 
 
 def parse_arguments():
@@ -122,7 +122,7 @@ def main(file):
     metrics_dict_tree_master = {'training_outcomes': [], 'probabilities': []}
 
     for i in range(0, len(K_folds[0])):
-        # for i in range(0, 1):
+    #for i in range(0, 1):
 
         # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
         training_data_minus_fold = training_data_master.drop(K_folds[0][i].index)
@@ -147,16 +147,28 @@ def main(file):
 
     plt.plot(fpr, tpr, 'b')
     plt.plot([0, 1], [0, 1], 'r--')
-    plt.title(f"Testing data Performance: AUC = {auc}")
+    plt.title(f"Training data Performance: AUC = {auc}")
     plt.xlabel("False Positive Rate", fontsize=12)
     plt.ylabel("True Positive Rate", fontsize=12)
 
     plt.show()
-    print(f"df_metrics_dict['precision']={df_metrics_dict['precision']}")
-    print(f"type(df_metrics_dict['precision']) = {type(df_metrics_dict['precision'])}")
-    print(f"df_metrics_dict['recall'] = {df_metrics_dict['recall']}")
-    print(f"type(df_metrics_dict['recall']) = {df_metrics_dict['recall']}")
-    plot_prc_curve(list(df_metrics_dict['precision']), list(df_metrics_dict['recall']), 'Training Data')
+
+    tpr, precision_list, threshold, auc = prc_curve(df_metrics_dict_tree_master['training_outcomes'],
+                                         df_metrics_dict_tree_master['probabilities'])
+    plt.plot(tpr,precision_list, 'b')
+    plt.plot([0, .8], [.8, .8], 'r--')
+    plt.title(f"Training data Performance PRC: AUC = {auc}")
+    plt.xlabel("Recall", fontsize=12)
+    plt.ylabel("Precision", fontsize=12)
+
+    plt.show()
+
+
+    # print(f"df_metrics_dict['precision']={df_metrics_dict['precision']}")
+    # print(f"type(df_metrics_dict['precision']) = {type(df_metrics_dict['precision'])}")
+    # print(f"df_metrics_dict['recall'] = {df_metrics_dict['recall']}")
+    # print(f"type(df_metrics_dict['recall']) = {df_metrics_dict['recall']}")
+    # plot_prc_curve(list(df_metrics_dict['precision']), list(df_metrics_dict['recall']), 'Training Data')
 
     ###################################################################################################################
     ############################################# Testing Data Metrics. ###############################################
@@ -199,8 +211,15 @@ def main(file):
 
     plt.show()
 
-    # plot_prc_curve(metrics_dict_test['precision'], metrics_dict_test['recall'],
-    #                'Testing Data')
+    tpr, precision_list, threshold, auc = prc_curve(df_metrics_dict_tree_master_test['training_outcomes'],
+                                                    df_metrics_dict_tree_master_test['probabilities'])
+    plt.plot(tpr, precision_list, 'b')
+    plt.plot([0, .8], [.8, .8], 'r--')
+    plt.title(f"Testing data Performance PRC: AUC = {auc}")
+    plt.xlabel("Recall", fontsize=12)
+    plt.ylabel("Precision", fontsize=12)
+
+    plt.show()
 
 
 if __name__ == "__main__":
