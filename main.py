@@ -147,7 +147,7 @@ def main(file):
 
     plt.plot(fpr, tpr, 'b')
     plt.plot([0, 1], [0, 1], 'r--')
-    plt.title(f"Training data Performance: AUC = {auc}")
+    plt.title(f"Training data Performance ROC: AUC = {auc}")
     plt.xlabel("False Positive Rate", fontsize=12)
     plt.ylabel("True Positive Rate", fontsize=12)
 
@@ -205,7 +205,7 @@ def main(file):
 
     plt.plot(fpr, tpr, 'b')
     plt.plot([0, 1], [0, 1], 'r--')
-    plt.title(f"Testing data Performance: AUC = {auc}")
+    plt.title(f"Testing data Performance ROC: AUC = {auc}")
     plt.xlabel("False Positive Rate", fontsize=12)
     plt.ylabel("True Positive Rate", fontsize=12)
 
