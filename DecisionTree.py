@@ -4,6 +4,8 @@ several functions to train the classifier.
 """
 import random
 from math import log, sqrt
+import numpy as np
+import pdb
 
 
 def choose_random_features(row):
@@ -38,6 +40,7 @@ def entropy(rows):
                 inner list).
     :return: float representing the entropy value.
     """
+
     results = unique_counts(rows)
     log2 = lambda x: log(x) / log(2)
     ent = 0.0
@@ -95,15 +98,6 @@ class DecisionTreeClassifier(object):
         """
         return [row[i] for i in self.features_indexes]
 
-    """
-        Recursively creates the decision tree by splitting the dataset until no
-        gain of information is added, or until the max depth is reached.
-        :param  rows:   The dataset
-        :param  func:   The function used to calculate the best split and stop
-                        condition
-        :param  depth:  The current depth in the tree
-        """
-
     def build_tree(self, rows, func, depth):
         """
         Builds a decision tree recursively by splitting the dataset until there is no additional information gain or
@@ -150,14 +144,6 @@ class DecisionTreeClassifier(object):
                                      tb=trueBranch, fb=falseBranch)
         else:
             return self.DecisionNode(results=unique_counts(rows))
-
-    """
-        :param  rows:       The data used to rain the decision tree. It must be a
-                            list of lists. The last vaue of each inner list is the
-                            value to predict.
-        :param  criterion:  The function used to split data at each node of the
-                            tree. If None, the criterion used is entropy.
-        """
 
     def fit(self, rows, criterion=None):
         """

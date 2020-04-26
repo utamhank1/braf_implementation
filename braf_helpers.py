@@ -3,6 +3,8 @@
 """
 import math
 import numpy as np
+import pdb
+from confusion_statistics_helpers import dict_list_appender
 
 
 def euclidean_distance(row1, row2):
@@ -32,7 +34,7 @@ def get_neighbors(dataset, row, k_neighbors):
         distances.append((train_row, dist))
     distances.sort(key=lambda tup: tup[1])
     neighbors = list()
-    for i in range(k_neighbors):
+    for i in range(0, k_neighbors):
         neighbors.append(distances[i][0])
     return neighbors
 
@@ -55,9 +57,14 @@ def calculate_model_metrics(training_data, model):
     false_negative = 0
     features = [ft[:-1] for ft in training_data.values]
     values = [ft[-1] for ft in training_data.values]
+    metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
+    metrics_dict_trees = {'training_outcomes': [], 'probabilities': [], 'precision': [], 'recall': []}
 
     for feature, value in zip(features, values):
-        prediction = model.predict(feature)
+        prediction, tree_metrics, metrics = model.predict(feature, value)
+        # print(f"Value = {value}, Prediction = {prediction}")
+        metrics_dict_trees = dict_list_appender(metrics_dict_trees, tree_metrics)
+        metrics_dict = dict_list_appender(metrics_dict, metrics)
         if prediction != value:
             errors += 1
             if prediction == 1 and value == 0:
@@ -70,8 +77,18 @@ def calculate_model_metrics(training_data, model):
             true_positive += 1
         len_data += 1
     precision = true_positive / (true_positive + false_positive)
-    recall = true_positive / (true_positive + false_negative)
-    false_positive_rate = false_positive/(false_positive + true_negative)
-    true_positive_rate = true_positive/(true_positive + false_negative)
+    # recall = true_positive / (true_positive + false_negative)
+    # false_positive_rate = false_positive/(false_positive + true_negative)
 
-    return precision, recall, false_positive_rate, true_positive_rate
+
+    # Handle edge cases
+    if true_positive + false_negative == 0:
+        recall = 1
+    else:
+        recall = true_positive / (true_positive + false_negative)
+    if false_positive + true_negative == 0:
+        false_positive_rate = 0
+    else:
+        false_positive_rate = false_positive / (false_positive + true_negative)
+
+    return precision, recall, false_positive_rate, metrics_dict_trees, metrics_dict
