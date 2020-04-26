@@ -57,7 +57,7 @@ def calculate_model_metrics(training_data, model):
     false_negative = 0
     features = [ft[:-1] for ft in training_data.values]
     values = [ft[-1] for ft in training_data.values]
-    metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
+    metrics_dict = {'precision': [], 'recall': []}
     metrics_dict_trees = {'training_outcomes': [], 'probabilities': []}
 
     for feature, value in zip(features, values):

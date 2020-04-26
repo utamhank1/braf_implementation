@@ -93,26 +93,21 @@ def main(file):
     data = processed_data_objects[
         f"data_std_dev_{str(std_dev_to_keep[0]).replace('.', '_')}_impute_{str(imputation_methods[0])}"][0]
 
-    # Shuffle the data.
+    # Shuffle the full dataset.
     data = data.sample(frac=1)
 
     # 80/20 test split for training and holdout data.
     holdout_data = data[0:int(.2 * len(data))]
     training_data_master = data[int(.2 * len(data)):len(data)]
 
-    # Separate labels from the rest of the dataset
-    holdout_data_labels = holdout_data['Outcome'].copy()
-    # holdout_data = holdout_data.drop('Outcome', axis=1)
-
     # TODO: Add K as an input to argparser.
     K = 10
 
+    # Shuffle full training data set.
     shuffled_data = training_data_master.sample(frac=1)
 
     # Create K random divisions of the test data and store them in a pandas dataframe.
     K_folds = pd.DataFrame(np.array_split(shuffled_data, K))
-
-    number_folds = len(K_folds)
 
     ####################################################################################################################
     ############################################ BRAF Algorithm. #######################################################
@@ -121,10 +116,15 @@ def main(file):
     # TODO: Add these parameters as inputs to argparser.
     p = .7
     s = 100
+
+    ###################################################################################################################
+    ################################### Training Data K-fold Cross Validation #########################################
+    ###################################################################################################################
+
     metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
     metrics_dict_tree_master = {'training_outcomes': [], 'probabilities': []}
 
-    #for i in range(0, len(K_folds[0])):
+    # for i in range(0, len(K_folds[0])):
     for i in range(0, 1):
 
         # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
@@ -157,15 +157,14 @@ def main(file):
     plt.show()
 
     ###################################################################################################################
-    ############################################# Testing Data Metrics. ###############################################
+    #################################### Execution of Best Model on Testing Data ######################################
     ###################################################################################################################
 
-    metrics_dict_test = {'precision': [], 'recall': [], 'FPR': []}
+    metrics_dict_test = {'precision': [], 'recall': []}
     metrics_dict_tree_master_test = {'training_outcomes': [], 'probabilities': []}
 
-    # Apply best model from training data (one with highest recall)
+    # Get Index of best model from training data (one with highest recall)
     best_index = metrics_dict['recall'].index(max(metrics_dict['recall']))
-    print(f"best_index = {best_index}")
 
     # Train model on best k-fold of training data, and apply it to make predictions on test data.
     # # Calculate metrics from model.
@@ -195,8 +194,6 @@ def main(file):
     plt.ylabel("Precision", fontsize=12)
 
     plt.show()
-
-    print(pd.DataFrame(metrics_dict_test))
 
 
 if __name__ == "__main__":
