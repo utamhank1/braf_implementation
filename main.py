@@ -86,15 +86,8 @@ def main(file, K, s, p):
     # imputation_methods = ['random', 'mean', 'median']
     std_dev_to_keep = [3.5]
     imputation_methods = ['random']
-    processed_data_objects = collections.defaultdict(list)
 
-    # # Create nine preprocessed and imputed data objects with varying std. deviations kept and imputation methods.
-    for imputation_method in imputation_methods:
-        for std_dev in std_dev_to_keep:
-            processed_data_objects[("data_std_dev_" + str(std_dev).replace('.', '_') + "_impute_" +
-                                    str(imputation_method))].append(data_preprocessor.
-                                                                    preprocessed_data(raw_data, stdev_to_keep=std_dev).
-                                                                    impute(imputation_method=imputation_method))
+    processed_data_objects = data_preprocessor.gen_preprocessed_objects(imputation_methods, std_dev_to_keep, raw_data)
 
     ####################################################################################################################
     ############################################ Data Splitting. #######################################################
