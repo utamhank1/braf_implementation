@@ -25,24 +25,35 @@ def parse_arguments():
     :return: string
     """
     # Infrastructure to set up command line argument parser.
-    parser = argparse.ArgumentParser(description='Enter the path to the directory of the PIMA diabetes.csv file you '
-                                                 'wish to analyze'
+    parser = argparse.ArgumentParser(description="Enter the path to the directory of the PIMA diabetes.csv file you "
+                                                 "wish to analyze."
                                      )
     parser.add_argument("-f", "--file", type=str, help='Path to the directory containing the .txt files'
-                                                       'DIRECTORY MUST NOT CONTAIN ANY SPACES IN FOLDER NAMES')
+                                                       'DIRECTORY MUST NOT CONTAIN ANY SPACES IN FOLDER NAMES.')
+
+    parser.add_argument("-K", "--folds", type=int, help="Number of divisions to make in training data for K-Fold Cross "
+                                                       "validation.")
+
+    parser.add_argument("-s", "--num_trees", type=int, help="Number of decision trees to create in each random forest.")
+
+    parser.add_argument("-p", "--proportion", type=float, help="Proportion of data to sample from the critical dataset.")
 
     args = parser.parse_args()
+    print(f"args = {args}")
     file = args.file
+    K = args.folds
+    s = args.num_trees
+    p = args.proportion
 
     # Input validation for file.
     if not os.path.exists(file):
         print('The file specified does not exist or is not in the current directory.')
         sys.exit()
 
-    return file
+    return file, K, s, p
 
 
-def main(file):
+def main(file, K, s, p):
     print(f"Hello, World the file supplied is {file}")
 
     ####################################################################################################################
@@ -100,9 +111,6 @@ def main(file):
     holdout_data = data[0:int(.2 * len(data))]
     training_data_master = data[int(.2 * len(data)):len(data)]
 
-    # TODO: Add K as an input to argparser.
-    K = 10
-
     # Shuffle full training data set.
     shuffled_data = training_data_master.sample(frac=1)
 
@@ -112,10 +120,6 @@ def main(file):
     ####################################################################################################################
     ############################################ BRAF Algorithm. #######################################################
     ####################################################################################################################
-
-    # TODO: Add these parameters as inputs to argparser.
-    p = .7
-    s = 100
 
     ###################################################################################################################
     ################################### Training Data K-fold Cross Validation #########################################
@@ -198,4 +202,4 @@ def main(file):
 
 if __name__ == "__main__":
     arguments = parse_arguments()
-    main(arguments)
+    main(*arguments)
