@@ -93,6 +93,9 @@ def main(file):
     data = processed_data_objects[
         f"data_std_dev_{str(std_dev_to_keep[0]).replace('.', '_')}_impute_{str(imputation_methods[0])}"][0]
 
+    # Shuffle the data.
+    data = data.sample(frac=1)
+
     # 80/20 test split for training and holdout data.
     holdout_data = data[0:int(.2 * len(data))]
     training_data_master = data[int(.2 * len(data)):len(data)]
