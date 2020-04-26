@@ -58,11 +58,10 @@ def calculate_model_metrics(training_data, model):
     features = [ft[:-1] for ft in training_data.values]
     values = [ft[-1] for ft in training_data.values]
     metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
-    metrics_dict_trees = {'training_outcomes': [], 'probabilities': [], 'precision': [], 'recall': []}
+    metrics_dict_trees = {'training_outcomes': [], 'probabilities': []}
 
     for feature, value in zip(features, values):
         prediction, tree_metrics, metrics = model.predict(feature, value)
-        # print(f"Value = {value}, Prediction = {prediction}")
         metrics_dict_trees = dict_list_appender(metrics_dict_trees, tree_metrics)
         metrics_dict = dict_list_appender(metrics_dict, metrics)
         if prediction != value:

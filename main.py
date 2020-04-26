@@ -71,7 +71,7 @@ def main(file):
     ####################################################################################################################
 
     # TODO: Generate all of the processed_data objects.
-    # std_dev_to_keep = [2.5, 2.75, 3.0]
+    # std_dev_to_keep = [2.5, 3.0, 3.5]
     # imputation_methods = ['random', 'mean', 'median']
     std_dev_to_keep = [3.5]
     imputation_methods = ['random']
@@ -121,7 +121,7 @@ def main(file):
     metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
     metrics_dict_tree_master = {'training_outcomes': [], 'probabilities': []}
 
-    # for i in range(0, len(K_folds[0])):
+    #for i in range(0, len(K_folds[0])):
     for i in range(0, 1):
 
         # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
@@ -146,7 +146,7 @@ def main(file):
     plt.show()
 
     plt.plot(tpr, precision, 'b')
-    plt.plot([0, .8], [1, .8], 'r--')
+    plt.plot([0, 1], [.8, .8], 'r--')
     plt.title(f"Training data Performance PRC: AUC = {auc_prc}")
     plt.xlabel("Recall", fontsize=12)
     plt.ylabel("Precision", fontsize=12)
@@ -186,7 +186,7 @@ def main(file):
     plt.show()
 
     plt.plot(tpr, precision, 'b')
-    plt.plot([0, .8], [1, .8], 'r--')
+    plt.plot([0, 1], [.8, .8], 'r--')
     plt.title(f"Testing data Performance PRC: AUC = {auc_prc}")
     plt.xlabel("Recall", fontsize=12)
     plt.ylabel("Precision", fontsize=12)

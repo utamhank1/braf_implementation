@@ -64,8 +64,6 @@ class RandomForestClassifier(object):
             predictions.append(tree.predict(feature))
         run_metrics_trees = tree_probability_calculator(predictions, value)
         run_metrics = confusion_calculator(predictions, value)
-        # print(f"run_metrics_trees = {run_metrics_trees}")
-        # print(f"len(run_metrics_trees)={run_metrics_trees}")
         return max(set(predictions), key=predictions.count), run_metrics_trees, run_metrics
 
     def fit_combined(self, data1, data2, nb_trees_2):
