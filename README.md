@@ -13,10 +13,10 @@ random (1.1)
 matplotlib (3.1.3)
 concurrent 
 arpgarse
-pandas (1.0.2)
+__pandas (1.0.2)
 numpy (1.18.1)
 scipy (1.4.1)
-seaborn (0.10)
+seaborn (0.10)__
 
 The requirements.txt file contains the non-standard library python modules that need to be installed into the virtual environment.
 
