@@ -4,8 +4,6 @@ several functions to train the classifier.
 """
 import random
 from math import log, sqrt
-import numpy as np
-import pdb
 
 
 def choose_random_features(row):
