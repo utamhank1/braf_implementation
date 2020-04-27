@@ -111,7 +111,7 @@ class curve_generator(object):
         plt.xlabel("False Positive Rate", fontsize=12)
         plt.ylabel("True Positive Rate", fontsize=12)
         plt.savefig(f"ROC_{title}.png")
-        plt.show()
+        plt.clf()
 
     def gen_prc(self, title):
         plt.plot(self.get_tpr(), self.get_precision(), 'b')
@@ -120,7 +120,7 @@ class curve_generator(object):
         plt.xlabel("Recall", fontsize=12)
         plt.ylabel("Precision", fontsize=12)
         plt.savefig(f"PRC_{title}.png")
-        plt.show()
+        plt.clf()
 
 
 
