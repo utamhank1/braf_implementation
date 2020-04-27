@@ -8,12 +8,25 @@ import pdb
 
 
 def dict_list_appender(dictionary1, list1):
+    """
+    This function takes a dictionary with values that are lists and appends the elements of the supplied list to every
+    value in the list.
+    :param dictionary1: dict with key-value pair format {key1: list, key2: list2 ... }
+    :param list1: list.
+    :return: dictionary with appended values to every key-value pair.
+    """
     for key, index in zip(dictionary1.keys(), range(0, len(list1))):
         dictionary1[key].append(list1[index])
     return dictionary1
 
 
 def confusion_calculator(prediction_list, value):
+    """
+    Calculates the "confusion matrix" of a prediction list and a value by returning the precision and recall
+    :param prediction_list: list of binary integers.
+    :param value: int binary 0 or 1.
+    :return: float, float precision and recall values.
+    """
     true_positive = 0.0
     true_negative = 0.0
     false_positive = 0.0
@@ -39,6 +52,13 @@ def confusion_calculator(prediction_list, value):
 
 
 def tree_probability_calculator(prediction_list, value):
+    """
+    Calculates the probabilities of every item in the supplied random forest prediction list
+    for the possible values 0 and 1.
+    :param prediction_list: list of binary integers.
+    :param value: int binary 0 or 1.
+    :return: int, float representing the probability of getting that particular value while traversing the tree(s).
+    """
     if value == 1:
         prob_hit = sum(prediction_list) / len(prediction_list)
     else:
@@ -47,6 +67,12 @@ def tree_probability_calculator(prediction_list, value):
 
 
 def integrate(x, y):
+    """
+    Calculates the area inder a curve.
+    :param x: list of floats or int.
+    :param y: list of floats or int.
+    :return: float.
+    """
     sm = 0
     for i in range(1, len(x)):
         h = x[i] - x[i - 1]
@@ -56,6 +82,13 @@ def integrate(x, y):
 
 
 def prc_roc_curve(y, prob):
+    """
+    This function calculates the list of false positive rates, true positive rates, precisions and area under the
+    ROC and PRC curves associated with ta list of true outcomes and their associated probabilities from the model.
+    :param y: list of binary values.
+    :param prob: list of floats representing probabilities.
+    :return:
+    """
     tpr_list = []
     fpr_list = []
     precision_list = []
@@ -83,6 +116,15 @@ def prc_roc_curve(y, prob):
 class curve_generator(object):
 
     def __init__(self, fpr, tpr, precision, auc_roc, auc_prc):
+        """
+        This object uses the supplied values of fpr, tpr, precision, auc_roc, and auc_prc to generate the associated
+        ROC and PRC plots and save them to disk.
+        :param fpr: list of floats of false positive rates.
+        :param tpr: list of floats of true positive rates.
+        :param precision: list of floats of precisions.
+        :param auc_roc: float area under roc curve value.
+        :param auc_prc: float area under curve of prc curve.
+        """
         self.fpr = fpr
         self.tpr = tpr
         self.precision = precision
@@ -121,27 +163,3 @@ class curve_generator(object):
         plt.ylabel("Precision", fontsize=12)
         plt.savefig(f"PRC_{title}.png")
         plt.clf()
-
-
-
-
-
-
-
-
-
-    # recall = np.linspace(0.0, 1.0, num=42)
-    # precision = np.random.rand(42) * (1. - recall)
-
-    # take a running maximum over the reversed vector of precision values, reverse the
-    # result to match the order of the recall vector
-    # decreasing_max_precision = np.maximum.accumulate(precision[::-1])[::-1]
-    # fig, ax = plt.subplots(1, 1)
-    # ax.hold(True)
-    # ax.plot(recall, precision, '--b')
-    # ax.step(recall, decreasing_max_precision, '-r')
-    # # ax.legend()
-    # ax.set_xlabel("recall")
-    # ax.set_ylabel("precision")
-    # plt.title(f'Precision-Recall Curve for {plot_title}')
-    # plt.show()

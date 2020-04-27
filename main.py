@@ -97,8 +97,8 @@ def main(file, K, s, p, imputation_method, stdev, exp):
     # decision trees generated from the training data and plot the associated prc and roc curves.
     training_data_curves = curve_generator(*prc_roc_curve(
         np.array(metrics_dict_tree_master['training_outcomes']), np.array(metrics_dict_tree_master['probabilities'])))
-    training_data_curves.gen_roc(title='Training Data')
-    training_data_curves.gen_prc(title='Training Data')
+    # training_data_curves.gen_roc(title='Training Data')
+    # training_data_curves.gen_prc(title='Training Data')
 
     # Print out relevant run metrics for training data.
     print(f"Training Data AUROC = {training_data_curves.get_auc_roc()}")
@@ -132,8 +132,8 @@ def main(file, K, s, p, imputation_method, stdev, exp):
     # decision trees generated from the test data and plot the associated prc and roc curves.
     testing_data_curves = curve_generator(*prc_roc_curve(np.array(metrics_dict_tree_master_test['training_outcomes']),
                                                          np.array(metrics_dict_tree_master_test['probabilities'])))
-    testing_data_curves.gen_roc(title='Testing Data')
-    testing_data_curves.gen_prc(title='Testing Data')
+    # testing_data_curves.gen_roc(title='Testing Data')
+    # testing_data_curves.gen_prc(title='Testing Data')
 
     # Print out relevant run metrics for testing data.
     print(f"Testing Data AUROC = {testing_data_curves.get_auc_roc()}")

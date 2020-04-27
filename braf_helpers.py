@@ -76,18 +76,7 @@ def calculate_model_metrics(training_data, model):
             true_positive += 1
         len_data += 1
     precision = true_positive / (true_positive + false_positive)
-    # recall = true_positive / (true_positive + false_negative)
-    # false_positive_rate = false_positive/(false_positive + true_negative)
-
-
-    # Handle edge cases
-    if true_positive + false_negative == 0:
-        recall = 1
-    else:
-        recall = true_positive / (true_positive + false_negative)
-    if false_positive + true_negative == 0:
-        false_positive_rate = 0
-    else:
-        false_positive_rate = false_positive / (false_positive + true_negative)
+    recall = true_positive / (true_positive + false_negative)
+    false_positive_rate = false_positive / (false_positive + true_negative)
 
     return precision, recall, false_positive_rate, metrics_dict_trees, metrics_dict

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ This module contains the argument parser that allows one to run the main() function from a windows or linux command
-line.
+line and allows the user to modify parameters on script execution.
 """
 import argparse
 import os
