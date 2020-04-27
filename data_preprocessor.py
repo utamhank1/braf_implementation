@@ -7,6 +7,7 @@ from scipy import stats
 import numpy as np
 import seaborn as sns
 import collections
+import matplotlib.pyplot as plt
 
 
 def gen_preprocessed_objects(imputation_methods, std_dev_to_keep, raw_data):
@@ -103,7 +104,13 @@ class data_explorer(preprocessed_data):
         super().__init__(raw_data)
 
     def draw_distributions(self):
-        return self.get_raw_data().groupby('Outcome').hist(figsize=(9, 9))
+        data = self.get_raw_data()
+        # Save histograms for both distributions of each feature for Outcome=1 and Outcome=0.
+        for i in data['Outcome'].unique():
+            data.loc[data['Outcome'] == i].hist(figsize=(9, 9))
+            plt.savefig(f'Outcome_{i}_histograms.png')
+            plt.clf()
+        return None
 
     def draw_correlations(self):
         correlations = abs(self.get_raw_data().corr())

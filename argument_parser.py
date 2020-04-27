@@ -48,7 +48,7 @@ def parse_arguments():
                                                                                      "deviations of each feature to "
                                                                                      "keep. Default is 3.5")
 
-    parser.add_argument("-exp", "--explore_data", default='False', type=bool, help="Indicate whether the user desires "
+    parser.add_argument("-exp", "--explore_data", default=False, type=bool, help="Indicate whether the user desires "
                                                                                    "to view correlational matrix and "
                                                                                    "histograms for data feature "
                                                                                    "distribution for both positive "

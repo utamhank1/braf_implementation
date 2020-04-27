@@ -5,6 +5,7 @@ import data_preprocessor
 import matplotlib.pyplot as plt
 import braf_main
 from confusion_statistics_helpers import dict_list_appender, prc_roc_curve, curve_generator
+import pdb
 
 
 def main(file, K, s, p, imputation_method, stdev, exp):
@@ -21,14 +22,14 @@ def main(file, K, s, p, imputation_method, stdev, exp):
     ####################################################################################################################
 
     if exp:
-        # Draw correlation heatmap for all features.
+        # Draw correlation heatmap for all features and save to disk.
         plt.figure(figsize=(10, 10))
-        plt.show(data_preprocessor.data_explorer(raw_data).draw_correlations())
+        correlations = data_preprocessor.data_explorer(raw_data).draw_correlations()
+        fig = correlations.get_figure()
+        fig.savefig("feature_correlations.png")
 
-        # Draw histograms of distributions of features for people with and without diabetes.
+        # Draw histograms of distributions of features for people with and without diabetes and save both to disk.
         data_preprocessor.data_explorer(raw_data).draw_distributions()
-        plt.show()
-
     else:
         pass
 

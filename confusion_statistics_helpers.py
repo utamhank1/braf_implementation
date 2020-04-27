@@ -110,6 +110,7 @@ class curve_generator(object):
         plt.title(f"{title} Performance ROC: AUC = {self.get_auc_roc()}")
         plt.xlabel("False Positive Rate", fontsize=12)
         plt.ylabel("True Positive Rate", fontsize=12)
+        plt.savefig(f"ROC_{title}.png")
         plt.show()
 
     def gen_prc(self, title):
@@ -118,8 +119,9 @@ class curve_generator(object):
         plt.title(f"{title} Performance PRC: AUC = {self.get_auc_prc()}")
         plt.xlabel("Recall", fontsize=12)
         plt.ylabel("Precision", fontsize=12)
-
+        plt.savefig(f"PRC_{title}.png")
         plt.show()
+
 
 
 
