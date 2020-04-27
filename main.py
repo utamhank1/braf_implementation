@@ -18,6 +18,8 @@ def main(file, K, s, p, imputation_method, stdev, exp):
     ####################################################################################################################
 
     raw_data = pd.DataFrame(pd.read_csv(file))
+    # Remove an duplicate entries from data.
+    raw_data = raw_data.drop_duplicates()
 
     ####################################################################################################################
     ############################################ Data Exploration. #####################################################
@@ -87,8 +89,8 @@ def main(file, K, s, p, imputation_method, stdev, exp):
         # Remove the first 1/10 of the data from the training dataset to be used as the testing data in each iteration.
         training_data_minus_fold = training_data_master.drop(K_folds[0][i].index)
 
-        # Run BRAF algorithm to build model and calculate metrics from model using the (K-1)/Kths of the data to train the
-        # model and the remaining 1/Kth to test the model.
+        # Run BRAF algorithm to build model and calculate metrics from model using the (K-1)/Kths of the data to
+        # train the model and the remaining 1/Kth to test the model.
         run_metrics = braf_main.braf(training_data=training_data_minus_fold, test_data=K_folds[0][i], s=s, p=p, K=K)
 
         # Attach values for precision and recall, training outcomes and probabilities for each iteration of the k-fold
