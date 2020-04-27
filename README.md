@@ -18,7 +18,7 @@ numpy (1.18.1)
 scipy (1.4.1)
 seaborn (0.10)
 
-The requirements.txt file contains the non-standard library python modules that need to be installed into the virtual environment. 2.	You must have a directory of plain text files that you wish to analyze, the path to this directory cannot contain any spaces or special characters.
+The requirements.txt file contains the non-standard library python modules that need to be installed into the virtual environment.
 
 2. One needs to have the Pima diabetes dataset in the same directory that the main file is present.
 
