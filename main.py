@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+""" This is the main() module for processing and executing the braf algorithm on the Pima diabetes dataset.
+"""
 import argument_parser
 import pandas as pd
 import numpy as np
@@ -5,7 +8,6 @@ import data_preprocessor
 import matplotlib.pyplot as plt
 import braf_main
 from confusion_helpers import dict_list_appender, prc_roc_curve, curve_generator
-import pdb
 
 
 def main(file, K, s, p, imputation_method, stdev, exp):
