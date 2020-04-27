@@ -65,7 +65,7 @@ def calculate_model_metrics(training_data, model):
     to hold precision, recall, training_outcomes and probabilities of those training_outcomes determined by the trees
     in the random forest.
     """
-    
+
     true_positive = 0
     true_negative = 0
     false_positive = 0
@@ -90,7 +90,6 @@ def calculate_model_metrics(training_data, model):
         # From the prediction made by the random forest, compare it to the actual value stored in values and determine
         # if the prediction was a false positive, true positive, true negative, or false negative.
         if prediction != value:
-            errors += 1
             if prediction == 1 and value == 0:
                 false_positive += 1
             else:
@@ -99,7 +98,6 @@ def calculate_model_metrics(training_data, model):
             true_negative += 1
         else:
             true_positive += 1
-        len_data += 1
 
     # Calculate precision, recall, and false positive rate.
     precision = true_positive / (true_positive + false_positive)
