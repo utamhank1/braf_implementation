@@ -1,11 +1,31 @@
 # -*- coding: utf-8 -*-
 """ This module contains objects and basic visualization tools for preprocessing the Pima diabetes dataset.
-The preprocessed_data
 """
 
 from scipy import stats
 import numpy as np
 import seaborn as sns
+import collections
+import matplotlib.pyplot as plt
+
+
+def gen_preprocessed_objects(imputation_methods, std_dev_to_keep, raw_data):
+    """
+    Generates a list of preprocessed_data objects that stores preprocessed data objects according to the imputation
+    method and std_dev_to_keep value supplied.
+    :param imputation_methods: list
+    :param std_dev_to_keep: list
+    :param raw_data: pandas dataframe.
+    :return: list of preprocessed_data_objects
+    """
+    # # Create preprocessed and imputed data objects with varying std. deviations kept and imputation methods.
+    processed_data_objects = collections.defaultdict(list)
+    for imputation_method in imputation_methods:
+        for std_dev in std_dev_to_keep:
+            processed_data_objects[("data_std_dev_" + str(std_dev).replace('.', '_') + "_impute_" +
+                                    str(imputation_method))].append(preprocessed_data(raw_data, stdev_to_keep=std_dev).
+                                                                    impute(imputation_method=imputation_method))
+    return processed_data_objects
 
 
 class preprocessed_data(object):
@@ -28,6 +48,7 @@ class preprocessed_data(object):
         """
         # Remove nan values
         df_without_na = self.get_raw_data().fillna(0)
+
         # Remove outlier values by checking each column, and removing the row where the value for that column is greater
         # than the supplied standard deviation number
         return df_without_na[(stats.zscore(df_without_na) < self.get_std_dev_to_keep()).all(axis=1)]
@@ -69,14 +90,18 @@ class preprocessed_data(object):
             # Gaussian distribution with parameters for the mean and std dev based on the specific column that the
             # missing value is located in.
             for i in range(1, len(df_original.columns) - 1):
+
                 mean = data_summary.iloc[:, i]['mean']
                 std_dev = data_summary.iloc[:, i]['std']
+
                 for j in range(0, len(df_original.iloc[:, i])):
+
                     if df_original.iloc[:, i][j] < .0001:
                         # Using the summary statistics for the dataframe with the zeros replaced by the mean
                         # values (data_summary) to create normal distributions from which we sample random values to
                         # insert into "df_original" (which does not have zeros removed).
                         df_original.iloc[:, i][j] = abs(np.random.normal(mean, std_dev))
+
             return df_original
 
 
@@ -86,7 +111,13 @@ class data_explorer(preprocessed_data):
         super().__init__(raw_data)
 
     def draw_distributions(self):
-        return self.get_raw_data().groupby('Outcome').hist(figsize=(9, 9))
+        data = self.get_raw_data()
+        # Save histograms for both distributions of each feature for Outcome=1 and Outcome=0.
+        for i in data['Outcome'].unique():
+            data.loc[data['Outcome'] == i].hist(figsize=(9, 9))
+            plt.savefig(f'Outcome_{i}_histograms.png')
+            plt.clf()
+        return None
 
     def draw_correlations(self):
         correlations = abs(self.get_raw_data().corr())

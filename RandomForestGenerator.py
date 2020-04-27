@@ -5,8 +5,7 @@ from a specified number of trees.
 import random
 from concurrent.futures import ProcessPoolExecutor
 from DecisionTree import DecisionTreeClassifier
-import pdb
-from confusion_statistics_helpers import confusion_calculator, tree_probability_calculator
+from confusion_helpers import confusion_calculator, tree_probability_calculator
 
 
 class RandomForestClassifier(object):
@@ -62,10 +61,11 @@ class RandomForestClassifier(object):
         predictions = []
         for tree in self.trees:
             predictions.append(tree.predict(feature))
+
+        # Calculate the probabilities of each outcome determined by the trees of the random forest.
         run_metrics_trees = tree_probability_calculator(predictions, value)
+
         run_metrics = confusion_calculator(predictions, value)
-        # print(f"run_metrics_trees = {run_metrics_trees}")
-        # print(f"len(run_metrics_trees)={run_metrics_trees}")
         return max(set(predictions), key=predictions.count), run_metrics_trees, run_metrics
 
     def fit_combined(self, data1, data2, nb_trees_2):
@@ -82,5 +82,6 @@ class RandomForestClassifier(object):
             for data, nb_trees in zip(list_data, list_nb_trees):
                 rand_fts_data = map(lambda x: [x, random.sample(data, self.nb_samples)],
                                     range(nb_trees))
+
                 # combined the trained random forests of each dataset together.
                 self.trees += list(executor.map(self.train_tree, rand_fts_data))
