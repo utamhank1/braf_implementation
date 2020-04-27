@@ -14,15 +14,14 @@ from braf_helpers import get_neighbors, calc_unique_neighbors, calculate_model_m
 import math
 from RandomForestGenerator import RandomForestClassifier
 import braf_main
-from confusion_statistics_helpers import dict_list_appender
+from confusion_statistics_helpers import dict_list_appender, prc_roc_curve, curve_generator
 import pdb
-from confusion_statistics_helpers import roc_curve, prc_curve, prc_roc_curve
 
 
 def parse_arguments():
     """
     Function that parses user set command line arguments to pass to program.
-    :return: string
+    :return: string, int, int, float
     """
     # Infrastructure to set up command line argument parser.
     parser = argparse.ArgumentParser(description="Enter the path to the directory of the PIMA diabetes.csv file you "
@@ -32,14 +31,14 @@ def parse_arguments():
                                                        'DIRECTORY MUST NOT CONTAIN ANY SPACES IN FOLDER NAMES.')
 
     parser.add_argument("-K", "--folds", type=int, help="Number of divisions to make in training data for K-Fold Cross "
-                                                       "validation.")
+                                                        "validation.")
 
     parser.add_argument("-s", "--num_trees", type=int, help="Number of decision trees to create in each random forest.")
 
-    parser.add_argument("-p", "--proportion", type=float, help="Proportion of data to sample from the critical dataset.")
+    parser.add_argument("-p", "--proportion", type=float,
+                        help="Proportion of data to sample from the critical dataset.")
 
     args = parser.parse_args()
-    print(f"args = {args}")
     file = args.file
     K = args.folds
     s = args.num_trees
@@ -47,14 +46,14 @@ def parse_arguments():
 
     # Input validation for file.
     if not os.path.exists(file):
-        print('The file specified does not exist or is not in the current directory.')
+        print('The file specified does not exist or is not in the directory specified.')
         sys.exit()
 
     return file, K, s, p
 
 
 def main(file, K, s, p):
-    print(f"Hello, World the file supplied is {file}")
+    print(f"Hello world, the file supplied is {file}")
 
     ####################################################################################################################
     ########################################### Data Importation. ######################################################
@@ -105,10 +104,10 @@ def main(file, K, s, p):
     training_data_master = data[int(.2 * len(data)):len(data)]
 
     # Shuffle full training data set.
-    shuffled_data = training_data_master.sample(frac=1)
+    shuffled_training_data = training_data_master.sample(frac=1)
 
     # Create K random divisions of the test data and store them in a pandas dataframe.
-    K_folds = pd.DataFrame(np.array_split(shuffled_data, K))
+    K_folds = pd.DataFrame(np.array_split(shuffled_training_data, K))
 
     ####################################################################################################################
     ############################################ BRAF Algorithm. #######################################################
@@ -118,40 +117,39 @@ def main(file, K, s, p):
     ################################### Training Data K-fold Cross Validation #########################################
     ###################################################################################################################
 
-    metrics_dict = {'precision': [], 'recall': [], 'FPR': []}
+    # Create empty data structures to hold the precision and recall values at the random forest level (compare outputs
+    # every random forest to the predicted value).
+    metrics_dict = {'precision': [], 'recall': []}
+
+    # Create empty data structure to hold the ratio of trees that correctly predicted the training outcome in the
+    # random forest.
     metrics_dict_tree_master = {'training_outcomes': [], 'probabilities': []}
 
-    # for i in range(0, len(K_folds[0])):
-    for i in range(0, 1):
+    for i in range(0, len(K_folds[0])):
+    # for i in range(0, 1):
 
-        # Remove the first 1/10 of the data in the k-folds cross validation from the training dataset.
+        # Remove the first 1/10 of the data from the training dataset to be used as the testing data in each iteration.
         training_data_minus_fold = training_data_master.drop(K_folds[0][i].index)
 
-        # # Calculate metrics from model.
+        # Run BRAF algorithm to build model and calculate metrics from model using the 9/10ths of the data to train the
+        # model and the remaining 1/10th to test the model.
         run_metrics = braf_main.braf(training_data=training_data_minus_fold, test_data=K_folds[0][i], s=s, p=p, K=K)
 
+        # Attach values of precision and recall, training outcomes and probabilities for each iteration of the k-fold
+        # cross validation.
         metrics_dict = dict_list_appender(metrics_dict, run_metrics[:-1])
         for key in metrics_dict_tree_master.keys():
             metrics_dict_tree_master[key] = metrics_dict_tree_master[key] + run_metrics[-2][key]
 
-    fpr, tpr, precision, auc_roc, auc_prc = prc_roc_curve(
-        np.array(metrics_dict_tree_master['training_outcomes']), np.array(metrics_dict_tree_master['probabilities']))
-
-    plt.plot(fpr, tpr, 'b')
-    plt.plot([0, 1], [0, 1], 'r--')
-    plt.title(f"Training data Performance ROC: AUC = {auc_roc}")
-    plt.xlabel("False Positive Rate", fontsize=12)
-    plt.ylabel("True Positive Rate", fontsize=12)
-
-    plt.show()
-
-    plt.plot(tpr, precision, 'b')
-    plt.plot([0, 1], [.8, .8], 'r--')
-    plt.title(f"Training data Performance PRC: AUC = {auc_prc}")
-    plt.xlabel("Recall", fontsize=12)
-    plt.ylabel("Precision", fontsize=12)
-
-    plt.show()
+    # Extract values for false positive rate (fpr), true positive rate(tpr), precision, and area under curves for the
+    # decision trees generated from the training data.
+    training_data_curves = curve_generator(*prc_roc_curve(
+        np.array(metrics_dict_tree_master['training_outcomes']), np.array(metrics_dict_tree_master['probabilities'])))
+    training_data_curves.gen_roc(title='Training Data')
+    training_data_curves.gen_prc(title='Training Data')
+    print(f"Training Data AUROC = {training_data_curves.get_auc_roc()}")
+    print(f"Training Data AUPRC = {training_data_curves.get_auc_prc()}")
+    print(f"Training data metrics per run of k-fold cross validation (AVG) = {pd.DataFrame(metrics_dict)}")
 
     ###################################################################################################################
     #################################### Execution of Best Model on Testing Data ######################################
@@ -173,24 +171,13 @@ def main(file, K, s, p):
     for key in metrics_dict_tree_master_test.keys():
         metrics_dict_tree_master_test[key] = metrics_dict_tree_master_test[key] + run_metrics_test[-2][key]
 
-    fpr, tpr, precision, auc_roc, auc_prc = prc_roc_curve(np.array(metrics_dict_tree_master_test['training_outcomes']),
-                                                          np.array(metrics_dict_tree_master_test['probabilities']))
-
-    plt.plot(fpr, tpr, 'b')
-    plt.plot([0, 1], [0, 1], 'r--')
-    plt.title(f"Testing data Performance ROC: AUC = {auc_roc}")
-    plt.xlabel("False Positive Rate", fontsize=12)
-    plt.ylabel("True Positive Rate", fontsize=12)
-
-    plt.show()
-
-    plt.plot(tpr, precision, 'b')
-    plt.plot([0, 1], [.8, .8], 'r--')
-    plt.title(f"Testing data Performance PRC: AUC = {auc_prc}")
-    plt.xlabel("Recall", fontsize=12)
-    plt.ylabel("Precision", fontsize=12)
-
-    plt.show()
+    testing_data_curves = curve_generator(*prc_roc_curve(np.array(metrics_dict_tree_master_test['training_outcomes']),
+                                                         np.array(metrics_dict_tree_master_test['probabilities'])))
+    testing_data_curves.gen_roc(title='Testing Data')
+    testing_data_curves.gen_prc(title='Testing Data')
+    print(f"Testing Data AUROC = {testing_data_curves.get_auc_roc()}")
+    print(f"Testing Data AUPRC = {testing_data_curves.get_auc_prc()}")
+    print(f"Testing data metrics (AVG) = {metrics_dict_test}")
 
 
 if __name__ == "__main__":
