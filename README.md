@@ -33,7 +33,7 @@ If you desire to run the program with the optional arguments, the format is as f
 
 python main.py -f diabetes.csv -K 10 -s 100 -p .7 -imp random -stdev 3.5 -exp True
 
-##Inputs: 
+## Input: 
 There are two seven-supplied inputs to the program doc_parser.py:
 1.	-f [file]: This string is the dataset that you wish to run the model on, in this case, should always be diabetes.csv which should be present in the same directory as main().
 
