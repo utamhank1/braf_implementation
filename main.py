@@ -38,21 +38,52 @@ def parse_arguments():
     parser.add_argument("-p", "--proportion", type=float,
                         help="Proportion of data to sample from the critical dataset.")
 
+    parser.add_argument("-imp", "--imputation_method", default='mean', type=str, help="Type of imputation method to "
+                                                                                      "use on the data, default is "
+                                                                                      "'random' where a random number "
+                                                                                      "is assigned to missing values "
+                                                                                      "in the dataset that are "
+                                                                                      "sampled from the gaussian "
+                                                                                      "distribution generated from "
+                                                                                      "the mean and std. deviation of "
+                                                                                      "that column. Other valid "
+                                                                                      "methods are 'mean' where the "
+                                                                                      "mean value of that column is "
+                                                                                      "imputed to all of the missing "
+                                                                                      "values, and 'median', "
+                                                                                      "where the median value of that "
+                                                                                      "column is imputed onto the "
+                                                                                      "missing values.")
+
+    parser.add_argument("-stdev", "--std_dev_to_keep", default=3.5, type=float, help="Value for the number of std. "
+                                                                                     "deviations of each feature to "
+                                                                                     "keep. Default is 3.5")
+
+    parser.add_argument("-exp", "--explore_data", default='False', type=bool, help="Indicate whether the user desires "
+                                                                                   "to view correlational matrix and "
+                                                                                   "histograms for data feature "
+                                                                                   "distribution for both positive "
+                                                                                   "and negative outcomes, "
+                                                                                   "Default is False")
+
     args = parser.parse_args()
     file = args.file
     K = args.folds
     s = args.num_trees
     p = args.proportion
+    imputation_method = args.imputation_method
+    stdev = args.std_dev_to_keep
+    exp = args.explore_data
 
     # Input validation for file.
     if not os.path.exists(file):
         print('The file specified does not exist or is not in the directory specified.')
         sys.exit()
 
-    return file, K, s, p
+    return file, K, s, p, imputation_method, stdev, exp
 
 
-def main(file, K, s, p):
+def main(file, K, s, p, imputation_method, stdev, exp):
     print(f"Hello world, the file supplied is {file}")
 
     ####################################################################################################################
@@ -65,34 +96,32 @@ def main(file, K, s, p):
     ############################################ Data Exploration. #####################################################
     ####################################################################################################################
 
-    # # Draw correlation heatmap for all features.
-    # plt.figure(figsize=(10, 10))
-    # plt.show(data_preprocessor.data_explorer(raw_data).draw_correlations())
-    #
-    # # Draw histograms of distributions of features for people with and without diabetes.
-    # data_preprocessor.data_explorer(raw_data).draw_distributions()
-    # plt.show()
-    #
-    # # Save summary statistics for each feature.
-    # feature_summary_statistics = data_preprocessor.data_explorer(raw_data).print_summary()
+    if exp:
+        # Draw correlation heatmap for all features.
+        plt.figure(figsize=(10, 10))
+        plt.show(data_preprocessor.data_explorer(raw_data).draw_correlations())
+
+        # Draw histograms of distributions of features for people with and without diabetes.
+        data_preprocessor.data_explorer(raw_data).draw_distributions()
+        plt.show()
+
+    else:
+        pass
 
     ####################################################################################################################
     ############################################ Data Pre-processing. ##################################################
     ####################################################################################################################
 
-    # TODO: Generate all of the processed_data objects.
-    # std_dev_to_keep = [2.5, 3.0, 3.5]
-    # imputation_methods = ['random', 'mean', 'median']
-    std_dev_to_keep = [3.5]
-    imputation_methods = ['random']
+    std_dev_to_keep = [stdev]
+    imputation_methods = [imputation_method]
 
+    # Generate preprocessed data object according to the std. deviation we wish to keep and the imputation method.
     processed_data_objects = data_preprocessor.gen_preprocessed_objects(imputation_methods, std_dev_to_keep, raw_data)
 
     ####################################################################################################################
     ############################################ Data Splitting. #######################################################
     ####################################################################################################################
 
-    # TODO: Iterate through all of the objects in processed_data objects.
     data = processed_data_objects[
         f"data_std_dev_{str(std_dev_to_keep[0]).replace('.', '_')}_impute_{str(imputation_methods[0])}"][0]
 
@@ -113,20 +142,18 @@ def main(file, K, s, p):
     ############################################ BRAF Algorithm. #######################################################
     ####################################################################################################################
 
-    ###################################################################################################################
-    ################################### Training Data K-fold Cross Validation #########################################
-    ###################################################################################################################
+    ################################### Training Data K-fold Cross Validation. #########################################
 
     # Create empty data structures to hold the precision and recall values at the random forest level (compare outputs
     # every random forest to the predicted value).
     metrics_dict = {'precision': [], 'recall': []}
 
-    # Create empty data structure to hold the ratio of trees that correctly predicted the training outcome in the
+    # Create empty data structure to hold the ratio of trees that correctly predicted the training data outcomes in the
     # random forest.
     metrics_dict_tree_master = {'training_outcomes': [], 'probabilities': []}
 
-    for i in range(0, len(K_folds[0])):
-    # for i in range(0, 1):
+    # for i in range(0, len(K_folds[0])):
+    for i in range(0, 1):
 
         # Remove the first 1/10 of the data from the training dataset to be used as the testing data in each iteration.
         training_data_minus_fold = training_data_master.drop(K_folds[0][i].index)
@@ -142,20 +169,25 @@ def main(file, K, s, p):
             metrics_dict_tree_master[key] = metrics_dict_tree_master[key] + run_metrics[-2][key]
 
     # Extract values for false positive rate (fpr), true positive rate(tpr), precision, and area under curves for the
-    # decision trees generated from the training data.
+    # decision trees generated from the training data and plot the associated prc and roc curves.
     training_data_curves = curve_generator(*prc_roc_curve(
         np.array(metrics_dict_tree_master['training_outcomes']), np.array(metrics_dict_tree_master['probabilities'])))
     training_data_curves.gen_roc(title='Training Data')
     training_data_curves.gen_prc(title='Training Data')
+
+    # Print out relevant run metrics for training data.
     print(f"Training Data AUROC = {training_data_curves.get_auc_roc()}")
     print(f"Training Data AUPRC = {training_data_curves.get_auc_prc()}")
     print(f"Training data metrics per run of k-fold cross validation (AVG) = {pd.DataFrame(metrics_dict)}")
 
-    ###################################################################################################################
-    #################################### Execution of Best Model on Testing Data ######################################
-    ###################################################################################################################
+    ################################ Execution of Best Model on Testing Data. ##########################################
 
+    # Create empty data structures to hold the precision and recall values at the random forest level (compare outputs
+    # every random forest to the predicted value).
     metrics_dict_test = {'precision': [], 'recall': []}
+
+    # Create empty data structure to hold the ratio of trees that correctly predicted the training data outcomes in the
+    # random forest.
     metrics_dict_tree_master_test = {'training_outcomes': [], 'probabilities': []}
 
     # Get Index of best model from training data (one with highest recall)
@@ -171,10 +203,14 @@ def main(file, K, s, p):
     for key in metrics_dict_tree_master_test.keys():
         metrics_dict_tree_master_test[key] = metrics_dict_tree_master_test[key] + run_metrics_test[-2][key]
 
+    # Extract values for false positive rate (fpr), true positive rate(tpr), precision, and area under curves for the
+    # decision trees generated from the test data and plot the associated prc and roc curves.
     testing_data_curves = curve_generator(*prc_roc_curve(np.array(metrics_dict_tree_master_test['training_outcomes']),
                                                          np.array(metrics_dict_tree_master_test['probabilities'])))
     testing_data_curves.gen_roc(title='Testing Data')
     testing_data_curves.gen_prc(title='Testing Data')
+
+    # Print out relevant run metrics for testing data.
     print(f"Testing Data AUROC = {testing_data_curves.get_auc_roc()}")
     print(f"Testing Data AUPRC = {testing_data_curves.get_auc_prc()}")
     print(f"Testing data metrics (AVG) = {metrics_dict_test}")
