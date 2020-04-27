@@ -2,35 +2,39 @@
 Implementation of the Biased Random Forest Machine Learning Algorithm in dealing with class imbalance on the Pima Dataset.
 
 # Requirements:
-The following python 3.7 modules are used in the execution of this file, non-standard library packages are bolded and version number is given:
+1. The following python 3.7 modules are used in the execution of this file, non-standard library packages are bolded and version number is given:
 
 python 3.7
-######sys
-######os
-######collections
-######math
-######random (1.1)
-######matplotlib (3.1.3)
-######concurrent 
-######arpgarse
-9. pandas (1.0.2)
-10. numpy (1.18.1)
-11. scipy (1.4.1)
-12. seaborn (0.10)
+sys
+os
+collections
+math
+random (1.1)
+matplotlib (3.1.3)
+concurrent 
+arpgarse
+pandas (1.0.2)
+numpy (1.18.1)
+scipy (1.4.1)
+seaborn (0.10)
 
 The requirements.txt file contains the non-standard library python modules that need to be installed into the virtual environment. 2.	You must have a directory of plain text files that you wish to analyze, the path to this directory cannot contain any spaces or special characters.
 
-One needs to have the Pima diabetes dataset in the same directory that the main file is present.
+2. One needs to have the Pima diabetes dataset in the same directory that the main file is present.
 
 
 # Launching the Program:
 
 Enter the following into the command line:
-###python main.py -f diabetes.csv -K 10 -s 100 -p .7
+
+python main.py -f diabetes.csv -K 10 -s 100 -p .7
+
 If you desire to run the program with the optional arguments, the format is as followed:
-###python main.py -f diabetes.csv -K 10 -s 100 -p .7 -imp random -stdev 3.5 -exp True
-Inputs: 
-	There are two seven-supplied inputs to the program doc_parser.py:
+
+python main.py -f diabetes.csv -K 10 -s 100 -p .7 -imp random -stdev 3.5 -exp True
+
+##Inputs: 
+There are two seven-supplied inputs to the program doc_parser.py:
 1.	-f [file]: This string is the dataset that you wish to run the model on, in this case, should always be diabetes.csv which should be present in the same directory as main().
 
 2.	-K [number of folds]: This is an integer number that specifies the number of folds you would like to divide your training data into for the purposes on K-fold cross validation.
@@ -44,7 +48,7 @@ Inputs:
 
 7.	-exp [(Optional) explore data] – This boolean value tells the program whether the user desires to view correlational charts and histograms related to the distributions and correlations of the features. Default is set to False.
 
-# Output:
+## Output:
 0.  There will be a list of precision and recall values from every run of the K-fold cross validation, precision and recall values from the test data, AUROC, AUPRC values printed to the console, and either seven .png files generated (if -exp is set to True), or four .png files generated (if -exp is not passed or set to False) in the working directory with the following titles.
 1.	feature_correlations.png – (Generated if -exp set to True) This file displays a correlational heatmap of every feature and the degree of correlation with every other feature.
 
