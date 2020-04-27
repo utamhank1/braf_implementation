@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """ This module contains helper functions for calculating key metrics involved in model performance, namely, counts for
-the precision, recall, and false positive rate(FPR) as well as the associated graphs.
+the precision, recall as well as creating and saving associated ROC and PRC graphs.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import pdb
 
 
 def dict_list_appender(dictionary1, list1):
@@ -108,6 +107,7 @@ def prc_roc_curve(y, prob):
             precision_list.append(1)
         else:
             precision_list.append(TPR / (FPR + TPR))
+        # Determine area under the curve.
         auc_prc = integrate(tpr_list, precision_list)
         auc_roc = integrate(fpr_list, tpr_list)
     return fpr_list, tpr_list, precision_list, auc_roc, auc_prc
@@ -147,6 +147,11 @@ class curve_generator(object):
         return self.auc_prc
 
     def gen_roc(self, title):
+        """
+        Plot the ROC curve and save it to file.
+        :param title: string representing the type of data this graph is for (training/testing).
+        :return: None.
+        """
         plt.plot(self.get_fpr(), self.get_tpr(), 'b')
         plt.plot([0, 1], [0, 1], 'r--')
         plt.title(f"{title} Performance ROC: AUC = {self.get_auc_roc()}")
@@ -156,6 +161,12 @@ class curve_generator(object):
         plt.clf()
 
     def gen_prc(self, title):
+        """
+        Plot the PRC curve and save it to file.
+        :param title: string representing the type of data this graph is for (training/testing).
+        :return: None.
+        """
+
         plt.plot(self.get_tpr(), self.get_precision(), 'b')
         plt.plot([0, 1], [.8, .8], 'r--')
         plt.title(f"{title} Performance PRC: AUC = {self.get_auc_prc()}")

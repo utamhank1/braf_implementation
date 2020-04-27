@@ -9,6 +9,19 @@ from RandomForestGenerator import RandomForestClassifier
 
 
 def braf(training_data, test_data, s, p, K):
+    """
+    This function executes the braf algorithm as detailed in the paper
+    "Biased Random Forest For Dealing With the Class Imbalance Problem".
+    :param training_data: pandas dataframe.
+    :param test_data: pandas dataframe.
+    :param s: int
+    :param p: float
+    :param K: int
+    :return: float, float, float, dict, dict representing
+    precision, recall, false_positive_rate, metrics_dict_trees, metrics_dict the later two of which are data structures
+    to hold precision, recall, training_outcomes and probabilities of those training_outcomes determined by the trees
+    in the random forest.
+    """
 
     # Step a, extract T_min minority class from training dataset.
     T_min = training_data.loc[training_data['Outcome'] == 1].reset_index(drop=True)
