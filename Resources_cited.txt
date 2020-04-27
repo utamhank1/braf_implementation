@@ -27,4 +27,11 @@
 27. https://stats.stackexchange.com/questions/254710/is-it-better-to-compute-a-roc-curve-using-predicted-probabilities-or-distances-f
 28. https://stackoverflow.com/questions/51423494/why-are-my-precision-recall-and-roc-curves-not-smooth
 29. https://towardsdatascience.com/machine-learning-classifier-evaluation-using-roc-and-cap-curves-7db60fe6b716
-30.
+30. https://www.geeksforgeeks.org/python-maximum-minimum-elements-position-list/
+31. https://stackoverflow.com/questions/11280536/how-can-i-add-the-corresponding-elements-of-several-lists-of-numbers
+32. https://thispointer.com/python-convert-list-of-lists-or-nested-list-to-flat-list/
+33. https://stats.stackexchange.com/questions/1773/what-are-correct-values-for-precision-and-recall-in-edge-cases
+34. https://stackoverflow.com/questions/46908388/find-euclidean-distance-from-a-point-to-rows-in-pandas-dataframe?rq=1
+35. https://towardsdatascience.com/pandas-index-explained-b131beaf6f7b
+36. https://www.analyticsvidhya.com/blog/2018/05/improve-model-performance-cross-validation-in-python-r/
+37. https://towardsdatascience.com/the-ultimate-guide-to-data-cleaning-3969843991d4
