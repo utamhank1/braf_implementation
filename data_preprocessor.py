@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """ This module contains objects and basic visualization tools for preprocessing the Pima diabetes dataset.
-The preprocessed_data
 """
 
 from scipy import stats
@@ -11,6 +10,14 @@ import matplotlib.pyplot as plt
 
 
 def gen_preprocessed_objects(imputation_methods, std_dev_to_keep, raw_data):
+    """
+    Generates a list of preprocessed_data objects that stores preprocessed data objects according to the imputation
+    method and std_dev_to_keep value supplied.
+    :param imputation_methods: list
+    :param std_dev_to_keep: list
+    :param raw_data: pandas dataframe.
+    :return: list of preprocessed_data_objects
+    """
     # # Create preprocessed and imputed data objects with varying std. deviations kept and imputation methods.
     processed_data_objects = collections.defaultdict(list)
     for imputation_method in imputation_methods:
