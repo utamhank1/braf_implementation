@@ -67,7 +67,7 @@ def tree_probability_calculator(prediction_list, value):
 
 def integrate(x, y):
     """
-    Calculates the area inder a curve.
+    Calculates the area under a curve.
     :param x: list of floats or int.
     :param y: list of floats or int.
     :return: float.
