@@ -108,13 +108,24 @@ def calculate_model_metrics(training_data, model):
 
 
 def oversampler(oversample_factor, T_min, T_maj, training_data):
+    """
+    This function oversamples the minority class when training the classifier for the random forest.
+    :param oversample_factor: The percentage of the output training dataset you wish to sample from the minority class: float.
+    :param T_min: The training data subset consisting of the minority class: pandas dataframe.
+    :param T_maj: The training data subset consisting of the majority class: pandas dataframe.
+    :param training_data: The full training dataset: pandas dataframe.
+    :return: pandas dataframe of the modified training dataset with oversampled rows from the minority class.
+    """
     # Reformulate training_data_minus_fold to oversample the minority class instances.
     num_minority_class_samples = int(oversample_factor * len(training_data))
     num_majority_class_samples = int((1 - oversample_factor) * len(training_data))
-    training_data_maj_oversampled = T_maj.sample(num_majority_class_samples, replace=True)
-    training_data_min_oversampled = T_min.sample(num_minority_class_samples, replace=True)
-    frames = [training_data_maj_oversampled, training_data_min_oversampled]
+
+    frames = [T_maj.sample(num_majority_class_samples, replace=True),
+              T_min.sample(num_minority_class_samples, replace=True)]
+
     training_data_oversampled = pd.concat(frames)
+
+    # Randomly shuffle data.
     training_data_oversampled = training_data_oversampled.sample(frac=1)
 
     return training_data_oversampled
