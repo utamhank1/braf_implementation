@@ -4,8 +4,9 @@
 """
 
 import pandas as pd
-from braf_helpers import calc_unique_neighbors, calculate_model_metrics
+from braf_helpers import calc_unique_neighbors, calculate_model_metrics, oversampler
 from RandomForestGenerator import RandomForestClassifier
+import pdb
 
 
 def braf(training_data, test_data, s, p, K):
@@ -25,6 +26,7 @@ def braf(training_data, test_data, s, p, K):
 
     # Step a, extract T_min minority class from training dataset.
     T_min = training_data.loc[training_data['Outcome'] == 1].reset_index(drop=True)
+    T_maj = training_data.loc[training_data['Outcome'] == 0].reset_index(drop=True)
 
     # Step b, isolate "difficult areas" affecting the minority instances.
     # For each record in T_min, create the find the k-nearest neighbors, save these nearest neighbors in T_c.
@@ -35,10 +37,15 @@ def braf(training_data, test_data, s, p, K):
     # Step c, build the main random forest rf classifier from the full dataset.
     rf = RandomForestClassifier(nb_trees=int((1 - p) * s), nb_samples=K, max_workers=4)
 
+    # Oversample the minority class for the training dataset in question.
+    training_data_oversampled_minus_fold = oversampler(T_min=T_min, T_maj=T_maj, training_data=training_data,
+                                                       oversample_factor=.4)
+    training_data_oversampled_minus_fold_values = training_data_oversampled_minus_fold.values
+
     # Step d, Append the random forest generated from the dataset of the critical areas and specify size of the random
     # forest generated from the critical dataset.
-    rf.fit_combined(list(training_data_minus_fold_values), list(T_c.values), nb_trees_2=int(s * p))
+    # rf.fit_combined(list(training_data_minus_fold_values), list(T_c.values), nb_trees_2=int(s * p))
+    rf.fit_combined(list(training_data_oversampled_minus_fold_values), list(T_c.values), nb_trees_2=int(s * p))
 
     # Calculate metrics from model.
     return calculate_model_metrics(test_data, model=rf)
-

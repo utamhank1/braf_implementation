@@ -3,6 +3,7 @@
 """
 import math
 import numpy as np
+import pandas as pd
 from confusion_helpers import dict_list_appender
 
 
@@ -104,3 +105,16 @@ def calculate_model_metrics(training_data, model):
     false_positive_rate = false_positive / (false_positive + true_negative)
 
     return precision, recall, false_positive_rate, metrics_dict_trees, metrics_dict
+
+
+def oversampler(oversample_factor, T_min, T_maj, training_data):
+    # Reformulate training_data_minus_fold to oversample the minority class instances.
+    num_minority_class_samples = int(oversample_factor * len(training_data))
+    num_majority_class_samples = int((1 - oversample_factor) * len(training_data))
+    training_data_maj_oversampled = T_maj.sample(num_majority_class_samples, replace=True)
+    training_data_min_oversampled = T_min.sample(num_minority_class_samples, replace=True)
+    frames = [training_data_maj_oversampled, training_data_min_oversampled]
+    training_data_oversampled = pd.concat(frames)
+    training_data_oversampled = training_data_oversampled.sample(frac=1)
+
+    return training_data_oversampled
